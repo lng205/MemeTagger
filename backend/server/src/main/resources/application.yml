@@ -3,3 +3,9 @@ google:
     project-id: "utility-ratio-448006-a2"
     bucket-name: "memetagger"
     credentials: "C:/Users/youbi/code/utility-ratio-448006-a2-519c65743d5e.json"
+spring:
+  datasource:
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/meme
+    driver-class-name: com.mysql.cj.jdbc.Driver
