@@ -5,38 +5,30 @@ import MemeUploader from './components/MemeUploader.vue';
 
 const isAuthenticated = ref(false);
 
+// Check auth state on mount and listen for changes
 onMounted(() => {
-  // Check if token exists in localStorage
   isAuthenticated.value = !!localStorage.getItem('auth_token');
   
-  // Listen for storage events (if user logs in/out in another tab)
   window.addEventListener('storage', (event) => {
-    if (event.key === 'auth_token') {
-      isAuthenticated.value = !!event.newValue;
-    }
+    if (event.key === 'auth_token') isAuthenticated.value = !!event.newValue;
   });
 });
-
-const updateAuthState = (state: boolean) => {
-  isAuthenticated.value = state;
-};
 </script>
 
 <template>
   <el-container direction="vertical" class="app">
-    <el-header class="app-header">
+    <el-header class="header">
       <h1>Meme Tagger</h1>
       <p>Upload and share your favorite memes</p>
     </el-header>
     
     <el-main>
-      <Auth @login-success="updateAuthState(true)" @logout="updateAuthState(false)" />
-      
+      <Auth @login-success="isAuthenticated = true" @logout="isAuthenticated = false" />
       <MemeUploader v-if="isAuthenticated" class="content" />
     </el-main>
     
-    <el-footer class="app-footer">
-      <p>&copy; {{ new Date().getFullYear() }} Meme Tagger</p>
+    <el-footer class="footer">
+      &copy; {{ new Date().getFullYear() }} Meme Tagger
     </el-footer>
   </el-container>
 </template>
@@ -44,18 +36,14 @@ const updateAuthState = (state: boolean) => {
 <style>
 body {
   margin: 0;
-  padding: 0;
-  min-height: 100vh;
   font-family: var(--el-font-family);
   background-color: var(--el-bg-color);
   color: var(--el-text-color-primary);
 }
 
-.app {
-  min-height: 100vh;
-}
+.app { min-height: 100vh; }
 
-.app-header {
+.header {
   background-color: var(--el-color-primary);
   color: white;
   text-align: center;
@@ -63,12 +51,12 @@ body {
   height: auto !important;
 }
 
-.app-header h1 {
+.header h1 { 
   margin: 0;
   font-size: 2em;
 }
 
-.app-header p {
+.header p { 
   margin: 10px 0 0;
   opacity: 0.8;
 }
@@ -78,7 +66,7 @@ body {
   margin: 30px auto 0;
 }
 
-.app-footer {
+.footer {
   background-color: var(--el-color-primary-light-9);
   color: var(--el-color-primary-dark-2);
   text-align: center;

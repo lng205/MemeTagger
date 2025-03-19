@@ -13,10 +13,6 @@ const handleLogin = () => {
   emit('login-success');
 };
 
-const handleRegister = () => {
-  activeTab.value = 'login';
-};
-
 const logout = () => {
   localStorage.removeItem('auth_token');
   isAuthenticated.value = false;
@@ -27,9 +23,7 @@ const logout = () => {
 onMounted(() => {
   const token = localStorage.getItem('auth_token');
   isAuthenticated.value = !!token;
-  if (isAuthenticated.value) {
-    emit('login-success');
-  }
+  if (isAuthenticated.value) emit('login-success');
 });
 
 defineExpose({ isAuthenticated });
@@ -38,9 +32,7 @@ defineExpose({ isAuthenticated });
 <template>
   <div class="auth-container">
     <el-card v-if="isAuthenticated">
-      <template #header>
-        <span>User Account</span>
-      </template>
+      <template #header>User Account</template>
       <div class="text-center">
         <h3>You are logged in</h3>
         <el-button type="danger" @click="logout">Logout</el-button>
@@ -48,16 +40,13 @@ defineExpose({ isAuthenticated });
     </el-card>
     
     <el-card v-else>
-      <template #header>
-        <span>Account Access</span>
-      </template>
-      
+      <template #header>Account Access</template>
       <el-tabs v-model="activeTab">
         <el-tab-pane label="Login" name="login">
           <Login @login-success="handleLogin" />
         </el-tab-pane>
         <el-tab-pane label="Register" name="register">
-          <Register @register-success="handleRegister" />
+          <Register @register-success="activeTab = 'login'" />
         </el-tab-pane>
       </el-tabs>
     </el-card>

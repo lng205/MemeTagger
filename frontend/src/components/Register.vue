@@ -25,12 +25,12 @@ const register = async () => {
   try {
     const response = await userService.register(username.value, password.value);
     if (response.data.code === 200) {
-      ElMessage.success('Registration successful! You can now login.');
+      ElMessage.success('Registration successful!');
       emit('register-success');
     } else {
       ElMessage.error(response.data.msg || 'Registration failed');
     }
-  } catch (err) {
+  } catch {
     ElMessage.error('Registration failed. Please try again.');
   } finally {
     loading.value = false;
@@ -39,49 +39,49 @@ const register = async () => {
 </script>
 
 <template>
-  <el-form label-position="top">
-    <h2>Register</h2>
+  <el-form @submit.prevent="register">
+    <h2 class="form-title">Register</h2>
     
-    <el-form-item label="Username">
+    <el-form-item>
       <el-input 
         v-model="username"
-        placeholder="Choose a username"
+        placeholder="Username"
+        autofocus
       />
     </el-form-item>
     
-    <el-form-item label="Password">
+    <el-form-item>
       <el-input 
         v-model="password"
         type="password" 
-        placeholder="Choose a password"
-        show-password
-      />
-    </el-form-item>
-    
-    <el-form-item label="Confirm Password">
-      <el-input 
-        v-model="confirmPassword"
-        type="password" 
-        placeholder="Confirm your password"
+        placeholder="Password"
         show-password
       />
     </el-form-item>
     
     <el-form-item>
-      <el-button 
-        type="primary" 
-        @click="register"
-        :loading="loading"
-        style="width: 100%"
-      >
-        Register
-      </el-button>
+      <el-input 
+        v-model="confirmPassword"
+        type="password" 
+        placeholder="Confirm Password"
+        show-password
+        @keyup.enter="register"
+      />
     </el-form-item>
+    
+    <el-button 
+      type="primary" 
+      @click="register"
+      :loading="loading"
+      style="width: 100%"
+    >
+      Register
+    </el-button>
   </el-form>
 </template>
 
 <style scoped>
-h2 {
+.form-title {
   text-align: center;
   margin-bottom: 20px;
 }

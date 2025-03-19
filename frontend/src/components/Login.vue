@@ -21,12 +21,12 @@ const login = async () => {
     
     if (response.data?.data) {
       localStorage.setItem('auth_token', response.data.data);
-      ElMessage.success('Login successful');
       emit('login-success');
+      ElMessage.success('Login successful');
     } else {
       ElMessage.error('Login failed: No token received');
     }
-  } catch (err) {
+  } catch {
     ElMessage.error('Login failed. Please try again.');
   } finally {
     loading.value = false;
@@ -35,40 +35,40 @@ const login = async () => {
 </script>
 
 <template>
-  <el-form label-position="top">
-    <h2>Login</h2>
+  <el-form @submit.prevent="login">
+    <h2 class="form-title">Login</h2>
     
-    <el-form-item label="Username">
+    <el-form-item>
       <el-input 
         v-model="username"
-        placeholder="Enter your username"
-      />
-    </el-form-item>
-    
-    <el-form-item label="Password">
-      <el-input 
-        v-model="password"
-        type="password" 
-        placeholder="Enter your password"
-        show-password
+        placeholder="Username"
+        autofocus
       />
     </el-form-item>
     
     <el-form-item>
-      <el-button 
-        type="primary" 
-        @click="login"
-        :loading="loading"
-        style="width: 100%"
-      >
-        Login
-      </el-button>
+      <el-input 
+        v-model="password"
+        type="password" 
+        placeholder="Password"
+        show-password
+        @keyup.enter="login"
+      />
     </el-form-item>
+    
+    <el-button 
+      type="primary" 
+      @click="login"
+      :loading="loading"
+      style="width: 100%"
+    >
+      Login
+    </el-button>
   </el-form>
 </template>
 
 <style scoped>
-h2 {
+.form-title {
   text-align: center;
   margin-bottom: 20px;
 }

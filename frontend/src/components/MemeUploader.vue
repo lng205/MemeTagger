@@ -3,6 +3,16 @@ import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { uploadService } from '../services/api';
 
+// Define the UploadFile interface to match Element Plus types
+interface UploadFile {
+  raw: File;
+  name: string;
+  size: number;
+  percentage?: number;
+  status?: string;
+  uid: number;
+}
+
 const selectedFile = ref<File | null>(null);
 const previewUrl = ref<string | null>(null);
 const uploading = ref(false);
@@ -11,21 +21,20 @@ const uploadedImageUrl = ref('');
 const handleFileChange = (file: File) => {
   if (!file) return false;
   
-  // Validate file type and size
+  // Validate file
   if (!file.type.startsWith('image/')) {
     ElMessage.error('Please upload an image file');
     return false;
   }
   
-  const maxSizeInMB = 5;
-  if (file.size / 1024 / 1024 > maxSizeInMB) {
-    ElMessage.error(`File size should not exceed ${maxSizeInMB}MB`);
+  if (file.size / 1024 / 1024 > 5) {
+    ElMessage.error('File size should not exceed 5MB');
     return false;
   }
 
   selectedFile.value = file;
   previewUrl.value = URL.createObjectURL(file);
-  return false; // prevent auto upload
+  return false;
 };
 
 const uploadMeme = async () => {
@@ -39,58 +48,50 @@ const uploadMeme = async () => {
   try {
     const response = await uploadService.uploadImage(selectedFile.value);
     if (response.data.code === 200) {
-      ElMessage.success('Meme uploaded successfully!');
+      ElMessage.success('Upload successful!');
       uploadedImageUrl.value = response.data.data;
     } else {
       ElMessage.error(response.data.msg || 'Upload failed');
     }
-  } catch (err) {
+  } catch {
     ElMessage.error('Upload failed. Please try again.');
   } finally {
     uploading.value = false;
   }
 };
 
-const copyToClipboard = (text: string) => {
-  navigator.clipboard.writeText(text);
-  ElMessage.success('URL copied to clipboard');
+const copyToClipboard = () => {
+  navigator.clipboard.writeText(uploadedImageUrl.value);
+  ElMessage.success('URL copied');
 };
 </script>
 
 <template>
   <el-card>
-    <template #header>
-      <span>Upload a Meme</span>
-    </template>
+    <template #header>Upload a Meme</template>
     
     <el-upload
       drag
       action="#"
       :auto-upload="false"
-      :on-change="(file) => handleFileChange(file.raw)"
+      :on-change="(file: UploadFile) => handleFileChange(file.raw)"
       :show-file-list="false"
     >
-      <div class="upload-content">
+      <div class="text-center">
         <el-icon><Upload /></el-icon>
-        <div class="el-upload__text">
-          Drop image here or <em>click to upload</em>
-        </div>
+        <div>Drop image here or <em>click to upload</em></div>
+        <div class="tip">JPG/PNG images, max 5MB</div>
       </div>
-      <template #tip>
-        <div class="el-upload__tip">JPG/PNG images, max 5MB</div>
-      </template>
     </el-upload>
     
     <div v-if="previewUrl" class="preview">
-      <h3>Preview</h3>
       <el-image :src="previewUrl" fit="contain" style="max-height: 300px;" />
     </div>
     
-    <div class="actions">
+    <div class="text-center mt-20" v-if="selectedFile">
       <el-button 
         type="primary" 
         @click="uploadMeme" 
-        :disabled="!selectedFile" 
         :loading="uploading"
       >
         {{ uploading ? 'Uploading...' : 'Upload Meme' }}
@@ -100,8 +101,7 @@ const copyToClipboard = (text: string) => {
     <el-result
       v-if="uploadedImageUrl"
       icon="success"
-      title="Uploaded Successfully"
-      sub-title="Your image is now available at:"
+      title="Upload Successful"
     >
       <template #extra>
         <el-input
@@ -109,9 +109,7 @@ const copyToClipboard = (text: string) => {
           readonly
         >
           <template #append>
-            <el-button @click="copyToClipboard(uploadedImageUrl)">
-              Copy
-            </el-button>
+            <el-button @click="copyToClipboard">Copy</el-button>
           </template>
         </el-input>
       </template>
@@ -120,11 +118,8 @@ const copyToClipboard = (text: string) => {
 </template>
 
 <style scoped>
-.upload-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: #909399;
+.text-center {
+  text-align: center;
 }
 
 .preview {
@@ -132,9 +127,13 @@ const copyToClipboard = (text: string) => {
   text-align: center;
 }
 
-.actions {
-  display: flex;
-  justify-content: center;
+.mt-20 {
   margin-top: 20px;
+}
+
+.tip {
+  color: #909399;
+  font-size: 12px;
+  margin-top: 10px;
 }
 </style> 

@@ -1,27 +1,17 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080';
-
 const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  // Important for CORS with credentials
+  baseURL: 'http://localhost:8080',
+  headers: { 'Content-Type': 'application/json' },
   withCredentials: true
 });
 
-// Add authorization token to requests
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// Add auth token to requests
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('auth_token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+}, error => Promise.reject(error));
 
 export const userService = {
   register: (username: string, password: string) => 
