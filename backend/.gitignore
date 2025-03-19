@@ -1,3 +1,4 @@
 target/
 .idea/
 application-dev.yml
+*.pem
