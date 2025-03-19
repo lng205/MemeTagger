@@ -4,7 +4,6 @@ import com.meme.constant.MessageConstant;
 import com.meme.dto.UserDTO;
 import com.meme.entity.User;
 import com.meme.mapper.UserMapper;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,7 +32,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public User loadUserByUsername(String username) throws UsernameNotFoundException {
         return userMapper.getByUsername(username);
     }
 }

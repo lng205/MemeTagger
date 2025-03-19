@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class User implements UserDetails {
-    Integer userId;
+    Integer id;
     String username;
     String password;
 
@@ -20,12 +20,12 @@ public class User implements UserDetails {
 
     }
 
-    public Integer getUserId() {
-        return userId;
+    public Integer getId() {
+        return id;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getUsername() {

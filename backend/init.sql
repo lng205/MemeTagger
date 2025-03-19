@@ -14,5 +14,5 @@ CREATE TABLE `meme` (
   `url` VARCHAR(255) NOT NULL,
   `user_id` INT NOT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `tags` VARCHAR(255) NOT NULL
+  `tags` VARCHAR(255)
 );

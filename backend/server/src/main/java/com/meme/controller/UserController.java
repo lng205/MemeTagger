@@ -1,6 +1,7 @@
 package com.meme.controller;
 
 import com.meme.dto.UserDTO;
+import com.meme.entity.User;
 import com.meme.result.Result;
 import com.meme.service.TokenService;
 import com.meme.service.UserService;
@@ -26,7 +27,8 @@ public class UserController {
 
     @PostMapping("/login")
     public Result<String> login(Authentication authentication) {
-        return Result.success(tokenService.generateToken(authentication));
+        User user = (User) authentication.getPrincipal();
+        return Result.success(tokenService.generateToken(authentication, user.getId()));
     }
 
     @PutMapping("/register")
@@ -38,10 +40,5 @@ public class UserController {
             return Result.error(e.getMessage());
         }
         return Result.success();
-    }
-
-    @GetMapping
-    public Result<String> test() {
-        return Result.success("Hello World");
     }
 }
