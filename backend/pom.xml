@@ -23,10 +23,10 @@
         <spring-boot>3.4.3</spring-boot>
         <google-cloud-storage>26.56.0</google-cloud-storage>
         <mybatis.spring>3.0.4</mybatis.spring>
-        <jackson>2.13.3</jackson>
-        <mysql-connector>9.1.0</mysql-connector>
-        <spring-boot-oauth2>3.3.3</spring-boot-oauth2>
-        <spring-boot-config>2.7.3</spring-boot-config>
+        <jackson>2.18.3</jackson>
+        <mysql-connector>9.2.0</mysql-connector>
+        <pagehelper>6.1.0</pagehelper>
+        <springdoc-openapi>2.8.5</springdoc-openapi>
     </properties>
 
     <dependencyManagement>
@@ -51,17 +51,22 @@
                 <artifactId>spring-boot-starter-jdbc</artifactId>
                 <version>${spring-boot}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-stater-oauth2-resource-server</artifactId>
-                <version>${spring-boot-oauth2}</version>
+                <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+                <version>${spring-boot}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-configuration-processor</artifactId>
                 <optional>true</optional>
-                <version>${spring-boot-config}</version>
+                <version>${spring-boot}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc-openapi}</version>
             </dependency>
 
             <dependency>
@@ -76,6 +81,11 @@
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>
                 <version>${mybatis.spring}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper</artifactId>
+                <version>${pagehelper}</version>
             </dependency>
             <dependency>
                 <groupId>com.mysql</groupId>

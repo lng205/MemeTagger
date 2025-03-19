@@ -16,3 +16,5 @@ CREATE TABLE `meme` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `tags` VARCHAR(255)
 );
+
+# TODO Build tag table
