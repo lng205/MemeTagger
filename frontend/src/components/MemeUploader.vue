@@ -6,29 +6,25 @@ import { uploadService } from '../services/api';
 // Define the UploadFile interface to match Element Plus types
 interface UploadFile {
   raw: File;
-  name: string;
-  size: number;
-  percentage?: number;
-  status?: string;
   uid: number;
 }
 
-const selectedFile = ref<File | null>(null);
-const previewUrl = ref<string | null>(null);
+const selectedFile = ref(null);
+const previewUrl = ref('');
 const uploading = ref(false);
 const uploadedImageUrl = ref('');
+const copied = ref(false);
 
-const handleFileChange = (file: File) => {
+const handleFileChange = (file) => {
   if (!file) return false;
   
-  // Validate file
   if (!file.type.startsWith('image/')) {
     ElMessage.error('Please upload an image file');
     return false;
   }
   
-  if (file.size / 1024 / 1024 > 5) {
-    ElMessage.error('File size should not exceed 5MB');
+  if (file.size > 5 * 1024 * 1024) {
+    ElMessage.error('File too large (max 5MB)');
     return false;
   }
 
@@ -37,32 +33,42 @@ const handleFileChange = (file: File) => {
   return false;
 };
 
-const uploadMeme = async () => {
-  if (!selectedFile.value) {
-    ElMessage.warning('Please select a file to upload');
-    return;
-  }
-
+const upload = async () => {
+  if (!selectedFile.value) return;
+  
   uploading.value = true;
-
   try {
-    const response = await uploadService.uploadImage(selectedFile.value);
-    if (response.data.code === 200) {
-      ElMessage.success('Upload successful!');
-      uploadedImageUrl.value = response.data.data;
+    const res = await uploadService.uploadImage(selectedFile.value);
+    if (res.data.code === 1) {
+      uploadedImageUrl.value = res.data.data;
+      ElMessage.success('Upload successful');
     } else {
-      ElMessage.error(response.data.msg || 'Upload failed');
+      ElMessage.error('Upload failed');
     }
   } catch {
-    ElMessage.error('Upload failed. Please try again.');
+    ElMessage.error('Upload failed');
   } finally {
     uploading.value = false;
   }
 };
 
-const copyToClipboard = () => {
-  navigator.clipboard.writeText(uploadedImageUrl.value);
-  ElMessage.success('URL copied');
+const copyUrl = async () => {
+  try {
+    await navigator.clipboard.writeText(uploadedImageUrl.value);
+    copied.value = true;
+    ElMessage.success('Copied');
+  } catch {
+    const el = document.createElement('textarea');
+    el.value = uploadedImageUrl.value;
+    el.style.position = 'absolute';
+    el.style.left = '-9999px';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    copied.value = true;
+    ElMessage.success('Copied');
+  }
 };
 </script>
 
@@ -74,10 +80,10 @@ const copyToClipboard = () => {
       drag
       action="#"
       :auto-upload="false"
-      :on-change="(file: UploadFile) => handleFileChange(file.raw)"
+      :on-change="(file) => handleFileChange(file.raw)"
       :show-file-list="false"
     >
-      <div class="text-center">
+      <div class="center">
         <el-icon><Upload /></el-icon>
         <div>Drop image here or <em>click to upload</em></div>
         <div class="tip">JPG/PNG images, max 5MB</div>
@@ -85,55 +91,38 @@ const copyToClipboard = () => {
     </el-upload>
     
     <div v-if="previewUrl" class="preview">
-      <el-image :src="previewUrl" fit="contain" style="max-height: 300px;" />
+      <el-image :src="previewUrl" fit="contain" style="max-height: 300px" />
     </div>
     
-    <div class="text-center mt-20" v-if="selectedFile">
-      <el-button 
-        type="primary" 
-        @click="uploadMeme" 
-        :loading="uploading"
-      >
-        {{ uploading ? 'Uploading...' : 'Upload Meme' }}
-      </el-button>
-    </div>
-    
-    <el-result
-      v-if="uploadedImageUrl"
-      icon="success"
-      title="Upload Successful"
+    <el-button 
+      v-if="selectedFile" 
+      type="primary" 
+      @click="upload" 
+      :loading="uploading"
+      class="btn"
     >
+      {{ uploading ? 'Uploading...' : 'Upload' }}
+    </el-button>
+    
+    <el-result v-if="uploadedImageUrl" icon="success" title="Upload Successful">
       <template #extra>
-        <el-input
-          v-model="uploadedImageUrl"
-          readonly
-        >
+        <el-input v-model="uploadedImageUrl" readonly>
           <template #append>
-            <el-button @click="copyToClipboard">Copy</el-button>
+            <el-button @click="copyUrl" type="primary">
+              {{ copied ? 'Copied' : 'Copy' }}
+            </el-button>
           </template>
         </el-input>
+        <a :href="uploadedImageUrl" target="_blank" class="link">Open Image</a>
       </template>
     </el-result>
   </el-card>
 </template>
 
 <style scoped>
-.text-center {
-  text-align: center;
-}
-
-.preview {
-  margin: 20px 0;
-  text-align: center;
-}
-
-.mt-20 {
-  margin-top: 20px;
-}
-
-.tip {
-  color: #909399;
-  font-size: 12px;
-  margin-top: 10px;
-}
+.center { text-align: center; }
+.preview { margin: 20px 0; text-align: center; }
+.tip { color: #909399; font-size: 12px; margin-top: 10px; }
+.btn { display: block; margin: 20px auto; }
+.link { display: block; margin-top: 10px; text-align: center; }
 </style> 

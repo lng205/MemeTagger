@@ -1,7 +1,17 @@
 import axios from 'axios';
 
+// Get the server IP from window location or environment
+const getServerUrl = () => {
+  // For development across devices in LAN
+  if (import.meta.env.DEV) {
+    return 'http://10.250.169.159:8080'; // Use your actual server IP
+  }
+  // For production or same-device testing, use relative URL
+  return '';
+};
+
 const api = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: getServerUrl(),
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true
 });
