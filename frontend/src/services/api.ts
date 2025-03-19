@@ -11,7 +11,7 @@ const api = axios.create({
   withCredentials: true
 });
 
-// Add a request interceptor to add the authorization token to requests
+// Add authorization token to requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('auth_token');
@@ -28,16 +28,9 @@ export const userService = {
     api.put('/user/register', { username, password }),
 
   login: (username: string, password: string) => {
-    // Create Basic auth token
     const token = btoa(`${username}:${password}`);
-    
-    // Don't include username/password in the body for Basic auth
     return api.post('/user/login', {}, {
-      headers: { 
-        Authorization: `Basic ${token}`,
-        // Override the default Content-Type since we're not sending JSON body
-        'Content-Type': 'application/json'
-      }
+      headers: { Authorization: `Basic ${token}` }
     });
   }
 };
@@ -48,9 +41,7 @@ export const uploadService = {
     formData.append('file', file);
     
     return api.post('/common/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+      headers: { 'Content-Type': 'multipart/form-data' }
     });
   }
 };

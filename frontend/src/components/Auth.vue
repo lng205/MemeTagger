@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 import Login from './Login.vue';
 import Register from './Register.vue';
 
@@ -8,7 +9,6 @@ const activeTab = ref('login');
 const emit = defineEmits(['login-success', 'logout']);
 
 const handleLogin = () => {
-  console.log('Login success handler called');
   isAuthenticated.value = true;
   emit('login-success');
 };
@@ -20,6 +20,7 @@ const handleRegister = () => {
 const logout = () => {
   localStorage.removeItem('auth_token');
   isAuthenticated.value = false;
+  ElMessage.success('Logged out successfully');
   emit('logout');
 };
 
@@ -36,24 +37,22 @@ defineExpose({ isAuthenticated });
 
 <template>
   <div class="auth-container">
-    <el-card v-if="isAuthenticated" class="auth-logged-in">
+    <el-card v-if="isAuthenticated">
       <template #header>
-        <div class="card-header">
-          <span>Authentication Status</span>
-        </div>
+        <span>User Account</span>
       </template>
-      <h2>You are logged in</h2>
-      <el-button type="danger" @click="logout">Logout</el-button>
+      <div class="text-center">
+        <h3>You are logged in</h3>
+        <el-button type="danger" @click="logout">Logout</el-button>
+      </div>
     </el-card>
     
-    <el-card v-else class="auth-forms">
+    <el-card v-else>
       <template #header>
-        <div class="card-header">
-          <span>Account Access</span>
-        </div>
+        <span>Account Access</span>
       </template>
       
-      <el-tabs v-model="activeTab" class="auth-tabs">
+      <el-tabs v-model="activeTab">
         <el-tab-pane label="Login" name="login">
           <Login @login-success="handleLogin" />
         </el-tab-pane>
@@ -67,22 +66,11 @@ defineExpose({ isAuthenticated });
 
 <style scoped>
 .auth-container {
-  max-width: 600px;
+  max-width: 500px;
   margin: 0 auto;
-  padding: 20px;
 }
 
-.auth-logged-in {
+.text-center {
   text-align: center;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.auth-tabs {
-  margin-top: 10px;
 }
 </style> 

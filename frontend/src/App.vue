@@ -3,14 +3,11 @@ import { ref, onMounted } from 'vue';
 import Auth from './components/Auth.vue';
 import MemeUploader from './components/MemeUploader.vue';
 
-const auth = ref();
 const isAuthenticated = ref(false);
 
-// Check auth on component mount and watch for changes
 onMounted(() => {
   // Check if token exists in localStorage
-  const token = localStorage.getItem('auth_token');
-  isAuthenticated.value = !!token;
+  isAuthenticated.value = !!localStorage.getItem('auth_token');
   
   // Listen for storage events (if user logs in/out in another tab)
   window.addEventListener('storage', (event) => {
@@ -20,25 +17,22 @@ onMounted(() => {
   });
 });
 
-// Function to update auth state from child components
 const updateAuthState = (state: boolean) => {
   isAuthenticated.value = state;
 };
 </script>
 
 <template>
-  <el-container class="app">
+  <el-container direction="vertical" class="app">
     <el-header class="app-header">
       <h1>Meme Tagger</h1>
       <p>Upload and share your favorite memes</p>
     </el-header>
     
     <el-main>
-      <Auth ref="auth" @login-success="updateAuthState(true)" @logout="updateAuthState(false)" />
+      <Auth @login-success="updateAuthState(true)" @logout="updateAuthState(false)" />
       
-      <div v-if="isAuthenticated" class="content">
-        <MemeUploader />
-      </div>
+      <MemeUploader v-if="isAuthenticated" class="content" />
     </el-main>
     
     <el-footer class="app-footer">
@@ -79,12 +73,9 @@ body {
   opacity: 0.8;
 }
 
-.el-main {
-  padding: 30px;
-}
-
 .content {
-  margin-top: 30px;
+  max-width: 600px;
+  margin: 30px auto 0;
 }
 
 .app-footer {
@@ -93,5 +84,6 @@ body {
   text-align: center;
   padding: 15px !important;
   height: auto !important;
+  margin-top: auto;
 }
 </style>

@@ -9,18 +9,14 @@ const uploading = ref(false);
 const uploadedImageUrl = ref('');
 
 const handleFileChange = (file: File) => {
-  if (!file) {
-    ElMessage.warning('Please select a file');
-    return false;
-  }
+  if (!file) return false;
   
-  // Check if file is an image
+  // Validate file type and size
   if (!file.type.startsWith('image/')) {
     ElMessage.error('Please upload an image file');
     return false;
   }
   
-  // Check file size (max 5MB)
   const maxSizeInMB = 5;
   if (file.size / 1024 / 1024 > maxSizeInMB) {
     ElMessage.error(`File size should not exceed ${maxSizeInMB}MB`);
@@ -49,38 +45,39 @@ const uploadMeme = async () => {
       ElMessage.error(response.data.msg || 'Upload failed');
     }
   } catch (err) {
-    console.error('Upload error:', err);
     ElMessage.error('Upload failed. Please try again.');
   } finally {
     uploading.value = false;
   }
 };
+
+const copyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text);
+  ElMessage.success('URL copied to clipboard');
+};
 </script>
 
 <template>
-  <el-card class="meme-uploader">
+  <el-card>
     <template #header>
-      <div class="card-header">
-        <span>Upload a Meme</span>
-      </div>
+      <span>Upload a Meme</span>
     </template>
     
     <el-upload
-      class="upload-container"
       drag
       action="#"
       :auto-upload="false"
       :on-change="(file) => handleFileChange(file.raw)"
       :show-file-list="false"
     >
-      <el-icon class="el-icon--upload"><i-ep-upload-filled /></el-icon>
-      <div class="el-upload__text">
-        Drop file here or <em>click to upload</em>
+      <div class="upload-content">
+        <el-icon><Upload /></el-icon>
+        <div class="el-upload__text">
+          Drop image here or <em>click to upload</em>
+        </div>
       </div>
       <template #tip>
-        <div class="el-upload__tip">
-          JPG/PNG images, max 5MB
-        </div>
+        <div class="el-upload__tip">JPG/PNG images, max 5MB</div>
       </template>
     </el-upload>
     
@@ -89,7 +86,7 @@ const uploadMeme = async () => {
       <el-image :src="previewUrl" fit="contain" style="max-height: 300px;" />
     </div>
     
-    <div class="upload-actions">
+    <div class="actions">
       <el-button 
         type="primary" 
         @click="uploadMeme" 
@@ -103,17 +100,16 @@ const uploadMeme = async () => {
     <el-result
       v-if="uploadedImageUrl"
       icon="success"
-      title="Meme Uploaded Successfully"
-      sub-title="Your image is now available at the URL below"
+      title="Uploaded Successfully"
+      sub-title="Your image is now available at:"
     >
       <template #extra>
         <el-input
           v-model="uploadedImageUrl"
           readonly
-          class="url-display"
         >
           <template #append>
-            <el-button @click="navigator.clipboard.writeText(uploadedImageUrl)">
+            <el-button @click="copyToClipboard(uploadedImageUrl)">
               Copy
             </el-button>
           </template>
@@ -124,20 +120,11 @@ const uploadMeme = async () => {
 </template>
 
 <style scoped>
-.meme-uploader {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.card-header {
+.upload-content {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-}
-
-.upload-container {
-  width: 100%;
-  margin-bottom: 20px;
+  color: #909399;
 }
 
 .preview {
@@ -145,13 +132,9 @@ const uploadMeme = async () => {
   text-align: center;
 }
 
-.upload-actions {
+.actions {
   display: flex;
   justify-content: center;
   margin-top: 20px;
-}
-
-.url-display {
-  margin-top: 15px;
 }
 </style> 

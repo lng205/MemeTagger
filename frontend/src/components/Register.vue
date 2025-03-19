@@ -31,7 +31,6 @@ const register = async () => {
       ElMessage.error(response.data.msg || 'Registration failed');
     }
   } catch (err) {
-    console.error('Registration error:', err);
     ElMessage.error('Registration failed. Please try again.');
   } finally {
     loading.value = false;
@@ -40,56 +39,50 @@ const register = async () => {
 </script>
 
 <template>
-  <div class="register-form">
+  <el-form label-position="top">
     <h2>Register</h2>
     
-    <el-form label-position="top">
-      <el-form-item label="Username">
-        <el-input 
-          v-model="username"
-          placeholder="Choose a username"
-          prefix-icon="el-icon-user"
-        />
-      </el-form-item>
-      
-      <el-form-item label="Password">
-        <el-input 
-          v-model="password"
-          type="password" 
-          placeholder="Choose a password"
-          prefix-icon="el-icon-lock"
-          show-password
-        />
-      </el-form-item>
-      
-      <el-form-item label="Confirm Password">
-        <el-input 
-          v-model="confirmPassword"
-          type="password" 
-          placeholder="Confirm your password"
-          prefix-icon="el-icon-lock"
-          show-password
-        />
-      </el-form-item>
-      
-      <el-form-item>
-        <el-button 
-          type="primary" 
-          @click="register"
-          :loading="loading"
-          style="width: 100%"
-        >
-          Register
-        </el-button>
-      </el-form-item>
-    </el-form>
-  </div>
+    <el-form-item label="Username">
+      <el-input 
+        v-model="username"
+        placeholder="Choose a username"
+      />
+    </el-form-item>
+    
+    <el-form-item label="Password">
+      <el-input 
+        v-model="password"
+        type="password" 
+        placeholder="Choose a password"
+        show-password
+      />
+    </el-form-item>
+    
+    <el-form-item label="Confirm Password">
+      <el-input 
+        v-model="confirmPassword"
+        type="password" 
+        placeholder="Confirm your password"
+        show-password
+      />
+    </el-form-item>
+    
+    <el-form-item>
+      <el-button 
+        type="primary" 
+        @click="register"
+        :loading="loading"
+        style="width: 100%"
+      >
+        Register
+      </el-button>
+    </el-form-item>
+  </el-form>
 </template>
 
 <style scoped>
-.register-form {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 20px;
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
 }
 </style> 
