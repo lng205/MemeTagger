@@ -36,32 +36,32 @@ defineExpose({ isAuthenticated });
 
 <template>
   <div class="auth-container">
-    <div v-if="isAuthenticated" class="auth-logged-in">
+    <el-card v-if="isAuthenticated" class="auth-logged-in">
+      <template #header>
+        <div class="card-header">
+          <span>Authentication Status</span>
+        </div>
+      </template>
       <h2>You are logged in</h2>
-      <button @click="logout" class="logout-btn">Logout</button>
-    </div>
+      <el-button type="danger" @click="logout">Logout</el-button>
+    </el-card>
     
-    <div v-else class="auth-forms">
-      <div class="tabs">
-        <button 
-          :class="{ active: activeTab === 'login' }" 
-          @click="activeTab = 'login'"
-        >
-          Login
-        </button>
-        <button 
-          :class="{ active: activeTab === 'register' }" 
-          @click="activeTab = 'register'"
-        >
-          Register
-        </button>
-      </div>
+    <el-card v-else class="auth-forms">
+      <template #header>
+        <div class="card-header">
+          <span>Account Access</span>
+        </div>
+      </template>
       
-      <div class="tab-content">
-        <Login v-if="activeTab === 'login'" @login-success="handleLogin" />
-        <Register v-if="activeTab === 'register'" @register-success="handleRegister" />
-      </div>
-    </div>
+      <el-tabs v-model="activeTab" class="auth-tabs">
+        <el-tab-pane label="Login" name="login">
+          <Login @login-success="handleLogin" />
+        </el-tab-pane>
+        <el-tab-pane label="Register" name="register">
+          <Register @register-success="handleRegister" />
+        </el-tab-pane>
+      </el-tabs>
+    </el-card>
   </div>
 </template>
 
@@ -74,45 +74,15 @@ defineExpose({ isAuthenticated });
 
 .auth-logged-in {
   text-align: center;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
 }
 
-.logout-btn {
-  background-color: #f44336;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.logout-btn:hover {
-  background-color: #d32f2f;
-}
-
-.tabs {
+.card-header {
   display: flex;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #ddd;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.tabs button {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  background-color: #f1f1f1;
-  cursor: pointer;
-}
-
-.tabs button.active {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.tab-content {
-  padding-top: 20px;
+.auth-tabs {
+  margin-top: 10px;
 }
 </style> 

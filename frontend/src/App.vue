@@ -27,65 +27,71 @@ const updateAuthState = (state: boolean) => {
 </script>
 
 <template>
-  <div class="app">
-    <header>
+  <el-container class="app">
+    <el-header class="app-header">
       <h1>Meme Tagger</h1>
       <p>Upload and share your favorite memes</p>
-    </header>
+    </el-header>
     
-    <main>
+    <el-main>
       <Auth ref="auth" @login-success="updateAuthState(true)" @logout="updateAuthState(false)" />
       
       <div v-if="isAuthenticated" class="content">
         <MemeUploader />
       </div>
-    </main>
+    </el-main>
     
-    <footer>
+    <el-footer class="app-footer">
       <p>&copy; {{ new Date().getFullYear() }} Meme Tagger</p>
-    </footer>
-  </div>
+    </el-footer>
+  </el-container>
 </template>
 
 <style>
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f5f5f5;
+  min-height: 100vh;
+  font-family: var(--el-font-family);
+  background-color: var(--el-bg-color);
+  color: var(--el-text-color-primary);
 }
 
 .app {
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
 }
 
-header {
-  background-color: #333;
+.app-header {
+  background-color: var(--el-color-primary);
   color: white;
-  padding: 20px;
   text-align: center;
+  padding: 20px !important;
+  height: auto !important;
 }
 
-h1 {
+.app-header h1 {
   margin: 0;
+  font-size: 2em;
 }
 
-main {
-  flex: 1;
-  padding: 20px;
+.app-header p {
+  margin: 10px 0 0;
+  opacity: 0.8;
+}
+
+.el-main {
+  padding: 30px;
 }
 
 .content {
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
-footer {
-  background-color: #333;
-  color: white;
+.app-footer {
+  background-color: var(--el-color-primary-light-9);
+  color: var(--el-color-primary-dark-2);
   text-align: center;
-  padding: 10px;
-  margin-top: auto;
+  padding: 15px !important;
+  height: auto !important;
 }
 </style>

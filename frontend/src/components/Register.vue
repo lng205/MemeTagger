@@ -1,39 +1,40 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { ElMessage } from 'element-plus';
 import { userService } from '../services/api';
 
 const username = ref('');
 const password = ref('');
 const confirmPassword = ref('');
-const error = ref('');
-const success = ref('');
+const loading = ref(false);
 const emit = defineEmits(['register-success']);
 
 const register = async () => {
-  error.value = '';
-  success.value = '';
-  
   if (!username.value || !password.value) {
-    error.value = 'Please enter both username and password';
+    ElMessage.warning('Please enter both username and password');
     return;
   }
   
   if (password.value !== confirmPassword.value) {
-    error.value = 'Passwords do not match';
+    ElMessage.warning('Passwords do not match');
     return;
   }
 
+  loading.value = true;
+  
   try {
     const response = await userService.register(username.value, password.value);
     if (response.data.code === 200) {
-      success.value = 'Registration successful! You can now login.';
+      ElMessage.success('Registration successful! You can now login.');
       emit('register-success');
     } else {
-      error.value = response.data.msg || 'Registration failed';
+      ElMessage.error(response.data.msg || 'Registration failed');
     }
   } catch (err) {
-    error.value = 'Registration failed. Please try again.';
-    console.error(err);
+    console.error('Registration error:', err);
+    ElMessage.error('Registration failed. Please try again.');
+  } finally {
+    loading.value = false;
   }
 };
 </script>
@@ -41,40 +42,47 @@ const register = async () => {
 <template>
   <div class="register-form">
     <h2>Register</h2>
-    <div v-if="error" class="error">{{ error }}</div>
-    <div v-if="success" class="success">{{ success }}</div>
     
-    <div class="form-group">
-      <label for="reg-username">Username</label>
-      <input 
-        id="reg-username"
-        v-model="username"
-        type="text" 
-        placeholder="Choose a username" 
-      />
-    </div>
-    
-    <div class="form-group">
-      <label for="reg-password">Password</label>
-      <input 
-        id="reg-password"
-        v-model="password"
-        type="password" 
-        placeholder="Choose a password" 
-      />
-    </div>
-    
-    <div class="form-group">
-      <label for="confirm-password">Confirm Password</label>
-      <input 
-        id="confirm-password"
-        v-model="confirmPassword"
-        type="password" 
-        placeholder="Confirm your password" 
-      />
-    </div>
-    
-    <button @click="register">Register</button>
+    <el-form label-position="top">
+      <el-form-item label="Username">
+        <el-input 
+          v-model="username"
+          placeholder="Choose a username"
+          prefix-icon="el-icon-user"
+        />
+      </el-form-item>
+      
+      <el-form-item label="Password">
+        <el-input 
+          v-model="password"
+          type="password" 
+          placeholder="Choose a password"
+          prefix-icon="el-icon-lock"
+          show-password
+        />
+      </el-form-item>
+      
+      <el-form-item label="Confirm Password">
+        <el-input 
+          v-model="confirmPassword"
+          type="password" 
+          placeholder="Confirm your password"
+          prefix-icon="el-icon-lock"
+          show-password
+        />
+      </el-form-item>
+      
+      <el-form-item>
+        <el-button 
+          type="primary" 
+          @click="register"
+          :loading="loading"
+          style="width: 100%"
+        >
+          Register
+        </el-button>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 
@@ -83,46 +91,5 @@ const register = async () => {
   max-width: 400px;
   margin: 0 auto;
   padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-.error {
-  color: red;
-  margin-bottom: 15px;
-}
-
-.success {
-  color: green;
-  margin-bottom: 15px;
 }
 </style> 

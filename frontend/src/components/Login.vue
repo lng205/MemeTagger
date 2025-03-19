@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { ElMessage } from 'element-plus';
 import { userService } from '../services/api';
 
 const username = ref('');
 const password = ref('');
-const error = ref('');
+const loading = ref(false);
 const emit = defineEmits(['login-success']);
 
 const login = async () => {
   if (!username.value || !password.value) {
-    error.value = 'Please enter both username and password';
+    ElMessage.warning('Please enter both username and password');
     return;
   }
 
-  error.value = '';
+  loading.value = true;
   
   try {
     const response = await userService.login(username.value, password.value);
@@ -24,14 +25,17 @@ const login = async () => {
       // Store the token and emit success
       localStorage.setItem('auth_token', response.data.data);
       console.log('Token stored:', response.data.data);
+      ElMessage.success('Login successful');
       emit('login-success');
     } else {
       console.error('No token in response:', response.data);
-      error.value = 'Login failed: No token received';
+      ElMessage.error('Login failed: No token received');
     }
   } catch (err) {
     console.error('Login error:', err);
-    error.value = 'Login failed. Please try again.';
+    ElMessage.error('Login failed. Please try again.');
+  } finally {
+    loading.value = false;
   }
 };
 </script>
@@ -39,29 +43,37 @@ const login = async () => {
 <template>
   <div class="login-form">
     <h2>Login</h2>
-    <div v-if="error" class="error">{{ error }}</div>
     
-    <div class="form-group">
-      <label for="username">Username</label>
-      <input 
-        id="username"
-        v-model="username"
-        type="text" 
-        placeholder="Enter your username" 
-      />
-    </div>
-    
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input 
-        id="password"
-        v-model="password"
-        type="password" 
-        placeholder="Enter your password" 
-      />
-    </div>
-    
-    <button @click="login">Login</button>
+    <el-form label-position="top">
+      <el-form-item label="Username">
+        <el-input 
+          v-model="username"
+          placeholder="Enter your username"
+          prefix-icon="el-icon-user"
+        />
+      </el-form-item>
+      
+      <el-form-item label="Password">
+        <el-input 
+          v-model="password"
+          type="password" 
+          placeholder="Enter your password"
+          prefix-icon="el-icon-lock"
+          show-password
+        />
+      </el-form-item>
+      
+      <el-form-item>
+        <el-button 
+          type="primary" 
+          @click="login"
+          :loading="loading"
+          style="width: 100%"
+        >
+          Login
+        </el-button>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 
@@ -70,41 +82,5 @@ const login = async () => {
   max-width: 400px;
   margin: 0 auto;
   padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-.error {
-  color: red;
-  margin-bottom: 15px;
 }
 </style> 
