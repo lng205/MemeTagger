@@ -3,19 +3,13 @@ import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { uploadService } from '../services/api';
 
-// Define the UploadFile interface to match Element Plus types
-interface UploadFile {
-  raw: File;
-  uid: number;
-}
-
-const selectedFile = ref(null);
+const selectedFile = ref<File | null>(null);
 const previewUrl = ref('');
 const uploading = ref(false);
 const uploadedImageUrl = ref('');
 const copied = ref(false);
 
-const handleFileChange = (file) => {
+const handleFileChange = (file: File) => {
   if (!file) return false;
   
   if (!file.type.startsWith('image/')) {
@@ -57,17 +51,25 @@ const copyUrl = async () => {
     await navigator.clipboard.writeText(uploadedImageUrl.value);
     copied.value = true;
     ElMessage.success('Copied');
-  } catch {
-    const el = document.createElement('textarea');
-    el.value = uploadedImageUrl.value;
-    el.style.position = 'absolute';
-    el.style.left = '-9999px';
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
-    copied.value = true;
-    ElMessage.success('Copied');
+  } catch (error) {
+    // Modern fallback using Clipboard API
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = uploadedImageUrl.value;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      
+      // Use the promise-based clipboard API
+      await navigator.clipboard.writeText(uploadedImageUrl.value);
+      
+      document.body.removeChild(textArea);
+      copied.value = true;
+      ElMessage.success('Copied');
+    } catch {
+      ElMessage.error('Failed to copy to clipboard');
+    }
   }
 };
 </script>
@@ -80,7 +82,7 @@ const copyUrl = async () => {
       drag
       action="#"
       :auto-upload="false"
-      :on-change="(file) => handleFileChange(file.raw)"
+      :on-change="(file: any) => handleFileChange(file.raw)"
       :show-file-list="false"
     >
       <div class="center">
