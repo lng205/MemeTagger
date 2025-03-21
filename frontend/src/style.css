@@ -1,0 +1,25 @@
+/* Basic resets and global styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure app takes full viewport height */
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+/* Setting default focus styles for accessibility */
+:focus {
+  outline: 2px solid var(--el-color-primary, #409eff);
+  outline-offset: 2px;
+}
+
+/* Dark mode adjustments through CSS variables only */
+@media (prefers-color-scheme: dark) {
+  body {
+    color-scheme: dark;
+  }
+}
