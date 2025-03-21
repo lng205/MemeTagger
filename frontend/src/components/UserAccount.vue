@@ -31,21 +31,11 @@ const logout = () => {
 
 <template>
   <div class="user-account">
-    <el-dropdown v-if="username" trigger="click">
-      <div class="user-dropdown-link">
-        <el-avatar size="small" :icon="'User'" />
-        <span>{{ username }}</span>
-        <el-icon><arrow-down /></el-icon>
-      </div>
-      <template #dropdown>
-        <el-dropdown-menu>
-          <el-dropdown-item @click="logout">
-            <el-icon><switch-button /></el-icon>
-            <span>Logout</span>
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </template>
-    </el-dropdown>
+    <div v-if="username" class="user-info">
+      <el-avatar size="small" :icon="'User'" />
+      <span class="username">{{ username }}</span>
+      <el-button size="small" type="danger" @click="logout">Logout</el-button>
+    </div>
     <el-skeleton v-else-if="loading" :rows="1" style="width: 80px" animated />
   </div>
 </template>
@@ -55,11 +45,13 @@ const logout = () => {
   display: flex;
   align-items: center;
 }
-.user-dropdown-link {
+.user-info {
   display: flex;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
   color: white;
+}
+.username {
+  margin: 0 10px 0 5px;
 }
 </style> 
