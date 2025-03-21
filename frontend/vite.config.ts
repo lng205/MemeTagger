@@ -7,9 +7,14 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'element-plus': ['element-plus', '@element-plus/icons-vue'],
-          'vendor': ['vue', 'axios']
+        manualChunks: (id) => {
+          if (id.includes('element-plus') || id.includes('@element-plus/icons-vue')) {
+            return 'element-plus';
+          }
+          
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
         }
       }
     }
