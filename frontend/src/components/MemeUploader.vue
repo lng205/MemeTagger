@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
-import { uploadService } from '../services/api';
+import { uploadService, openaiService } from '../services/api';
 
 const selectedFile = ref<File | null>(null);
 const previewUrl = ref('');
 const uploading = ref(false);
 const uploadedImageUrl = ref('');
 const copied = ref(false);
+const analyzing = ref(false);
+const imageAnalysis = ref<string>('');
 
 const handleFileChange = (file: File) => {
   if (!file) return false;
@@ -43,6 +45,25 @@ const upload = async () => {
     ElMessage.error('Upload failed');
   } finally {
     uploading.value = false;
+  }
+};
+
+const analyzeImage = async () => {
+  if (!uploadedImageUrl.value) return;
+  
+  analyzing.value = true;
+  try {
+    const result = await openaiService.analyzeImage(uploadedImageUrl.value);
+    if (result.success) {
+      imageAnalysis.value = result.data || '';
+    } else {
+      ElMessage.error(`Analysis failed: ${result.error}`);
+    }
+  } catch (error) {
+    ElMessage.error('Failed to analyze image');
+    console.error(error);
+  } finally {
+    analyzing.value = false;
   }
 };
 
@@ -116,6 +137,22 @@ const copyUrl = async () => {
           </template>
         </el-input>
         <a :href="uploadedImageUrl" target="_blank" class="link">Open Image</a>
+        
+        <el-button 
+          type="success" 
+          @click="analyzeImage" 
+          :loading="analyzing"
+          class="analyze-btn"
+        >
+          {{ analyzing ? 'Analyzing...' : 'Analyze with AI' }}
+        </el-button>
+        
+        <el-card v-if="imageAnalysis" class="analysis-card">
+          <template #header>
+            <div class="analysis-header">AI Analysis</div>
+          </template>
+          <p class="analysis-text">{{ imageAnalysis }}</p>
+        </el-card>
       </template>
     </el-result>
   </el-card>
@@ -127,4 +164,8 @@ const copyUrl = async () => {
 .tip { color: #909399; font-size: 12px; margin-top: 10px; }
 .btn { display: block; margin: 20px auto; }
 .link { display: block; margin-top: 10px; text-align: center; }
+.analyze-btn { display: block; margin: 20px auto; }
+.analysis-card { margin-top: 20px; }
+.analysis-header { font-weight: bold; }
+.analysis-text { white-space: pre-wrap; }
 </style> 
