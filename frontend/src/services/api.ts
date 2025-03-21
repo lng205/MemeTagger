@@ -1,6 +1,7 @@
 import axios from 'axios';
 import OpenAI from 'openai';
 import settingsStore from '../store/settings';
+import { MEME_ANALYSIS_PROMPT } from './aiPrompts';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -52,7 +53,7 @@ const createOpenAIClient = (apiKey?: string) => {
 };
 
 export const openaiService = {
-  analyzeImage: async (imageUrl: string, prompt: string = "What's in this image?", apiKey?: string) => {
+  analyzeImage: async (imageUrl: string, apiKey?: string) => {
     try {
       // Create client with user-provided API key or fall back to global settings
       const openai = createOpenAIClient(apiKey);
@@ -62,7 +63,7 @@ export const openaiService = {
         input: [{
           role: "user",
           content: [
-            { type: "input_text", text: prompt },
+            { type: "input_text", text: MEME_ANALYSIS_PROMPT },
             {
               type: "input_image",
               image_url: imageUrl,
