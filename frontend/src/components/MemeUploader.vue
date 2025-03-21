@@ -59,10 +59,25 @@ const uploadAndAnalyze = async () => {
         ElMessage.error(`Analysis failed: ${result.error}`);
       }
     } else {
-      ElMessage.error('Upload failed');
+      ElMessage.error('Upload failed: ' + (res.data?.msg || 'Unknown error'));
     }
-  } catch (error) {
-    ElMessage.error('Process failed');
+  } catch (error: any) {
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      if (error.response.status === 401) {
+        ElMessage.error('Authentication required. Please log in.');
+        // The global interceptor will handle the redirect
+      } else {
+        ElMessage.error(`Error: ${error.response.status} - ${error.response.data?.msg || 'Unknown error'}`);
+      }
+    } else if (error.request) {
+      // The request was made but no response was received
+      ElMessage.error('No response from server. Please check your connection.');
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      ElMessage.error('Process failed: ' + (error.message || 'Unknown error'));
+    }
     console.error(error);
   } finally {
     uploading.value = false;

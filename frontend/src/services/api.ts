@@ -16,6 +16,23 @@ api.interceptors.request.use(config => {
   return config;
 }, error => Promise.reject(error));
 
+// Handle 401 Unauthorized errors
+api.interceptors.response.use(
+  response => response, 
+  error => {
+    // If we get a 401 error, the token is invalid or expired
+    if (error.response && error.response.status === 401) {
+      // Clear the auth token
+      localStorage.removeItem('auth_token');
+      
+      // Force page refresh to redirect to the login page 
+      // (App.vue will handle showing the Auth component)
+      window.location.reload();
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const userService = {
   register: (username: string, password: string) => 
     api.put('/user/register', { username, password }),
