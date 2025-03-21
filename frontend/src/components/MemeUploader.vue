@@ -53,7 +53,7 @@ const analyzeImage = async () => {
   
   analyzing.value = true;
   try {
-    const result = await openaiService.analyzeImage(uploadedImageUrl.value);
+    const result = await openaiService.analyzeImage(uploadedImageUrl.value, "What's in this image?");
     if (result.success) {
       imageAnalysis.value = result.data || '';
     } else {

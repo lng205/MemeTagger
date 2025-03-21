@@ -2,12 +2,17 @@
 import { ref, onMounted } from 'vue';
 import Auth from './components/Auth.vue';
 import MemeUploader from './components/MemeUploader.vue';
+import ApiKeySettings from './components/ApiKeySettings.vue';
+import settingsStore from './store/settings';
 
 const isAuthenticated = ref(false);
 
 // Check auth state on mount and listen for changes
 onMounted(() => {
   isAuthenticated.value = !!localStorage.getItem('auth_token');
+  
+  // Initialize settings from localStorage
+  settingsStore.actions.initializeSettings();
   
   window.addEventListener('storage', (event) => {
     if (event.key === 'auth_token') isAuthenticated.value = !!event.newValue;
@@ -18,8 +23,15 @@ onMounted(() => {
 <template>
   <el-container direction="vertical" class="app">
     <el-header class="header">
-      <h1>Meme Tagger</h1>
-      <p>Upload and share your favorite memes</p>
+      <div class="header-content">
+        <div>
+          <h1>Meme Tagger</h1>
+          <p>Upload and share your favorite memes</p>
+        </div>
+        <div class="settings-section">
+          <ApiKeySettings />
+        </div>
+      </div>
     </el-header>
     
     <el-main>
@@ -46,9 +58,16 @@ body {
 .header {
   background-color: var(--el-color-primary);
   color: white;
-  text-align: center;
   padding: 20px !important;
   height: auto !important;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .header h1 { 
@@ -59,6 +78,11 @@ body {
 .header p { 
   margin: 10px 0 0;
   opacity: 0.8;
+}
+
+.settings-section {
+  display: flex;
+  gap: 10px;
 }
 
 .content {

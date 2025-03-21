@@ -1,5 +1,6 @@
 import axios from 'axios';
 import OpenAI from 'openai';
+import settingsStore from '../store/settings';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -37,15 +38,23 @@ export const uploadService = {
   }
 };
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true // Allows using API key in browser
-});
+// Initialize default OpenAI client with env API key
+const createOpenAIClient = (apiKey?: string) => {
+  // Priority: 1. Provided key, 2. Global key in settings, 3. Environment variable
+  const key = apiKey || settingsStore.state.openaiApiKey || import.meta.env.VITE_OPENAI_API_KEY;
+  
+  return new OpenAI({
+    apiKey: key,
+    dangerouslyAllowBrowser: true // Allows using API key in browser
+  });
+};
 
 export const openaiService = {
-  analyzeImage: async (imageUrl: string, prompt: string = "What's in this image?") => {
+  analyzeImage: async (imageUrl: string, prompt: string = "What's in this image?", apiKey?: string) => {
     try {
+      // Create client with user-provided API key or fall back to global settings
+      const openai = createOpenAIClient(apiKey);
+      
       const response = await openai.responses.create({
         model: "gpt-4o-mini",
         input: [{
