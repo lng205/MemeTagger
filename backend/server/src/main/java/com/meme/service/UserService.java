@@ -35,4 +35,8 @@ public class UserService implements UserDetailsService {
     public User loadUserByUsername(String username) throws UsernameNotFoundException {
         return userMapper.getByUsername(username);
     }
+
+    public User getById(Integer id) {
+        return userMapper.getById(id);
+    }
 }

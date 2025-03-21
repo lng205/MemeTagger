@@ -1,15 +1,23 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
-import { uploadService } from '../services/api';
+import { uploadService, openaiService } from '../services/api';
 
+// File upload state
 const selectedFile = ref<File | null>(null);
 const previewUrl = ref('');
 const uploading = ref(false);
 const uploadedImageUrl = ref('');
-const copied = ref(false);
 
-const handleFileChange = (file: File) => {
+// Analysis state
+const analyzing = ref(false);
+const imageAnalysis = ref('');
+
+// Processing state (combined uploading and analyzing)
+const processing = ref(false);
+
+// Handle file selection
+const handleFileChange = (file: File | null) => {
   if (!file) return false;
   
   if (!file.type.startsWith('image/')) {
@@ -27,49 +35,49 @@ const handleFileChange = (file: File) => {
   return false;
 };
 
-const upload = async () => {
+// Upload the selected file and analyze it
+const uploadAndAnalyze = async () => {
   if (!selectedFile.value) return;
   
+  processing.value = true;
   uploading.value = true;
+  
   try {
+    // Upload step
     const res = await uploadService.uploadImage(selectedFile.value);
-    if (res.data.code === 1) {
+    if (res.data?.code === 1) {
       uploadedImageUrl.value = res.data.data;
-      ElMessage.success('Upload successful');
+      uploading.value = false;
+      
+      // Analyze step
+      analyzing.value = true;
+      const result = await openaiService.analyzeImage(uploadedImageUrl.value);
+      if (result.success) {
+        imageAnalysis.value = result.data || '';
+        ElMessage.success('Meme tagged successfully');
+      } else {
+        ElMessage.error(`Analysis failed: ${result.error}`);
+      }
     } else {
       ElMessage.error('Upload failed');
     }
-  } catch {
-    ElMessage.error('Upload failed');
+  } catch (error) {
+    ElMessage.error('Process failed');
+    console.error(error);
   } finally {
     uploading.value = false;
+    analyzing.value = false;
+    processing.value = false;
   }
 };
 
+// Copy the image URL to clipboard
 const copyUrl = async () => {
   try {
     await navigator.clipboard.writeText(uploadedImageUrl.value);
-    copied.value = true;
-    ElMessage.success('Copied');
-  } catch (error) {
-    // Modern fallback using Clipboard API
-    try {
-      const textArea = document.createElement('textarea');
-      textArea.value = uploadedImageUrl.value;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      document.body.appendChild(textArea);
-      textArea.select();
-      
-      // Use the promise-based clipboard API
-      await navigator.clipboard.writeText(uploadedImageUrl.value);
-      
-      document.body.removeChild(textArea);
-      copied.value = true;
-      ElMessage.success('Copied');
-    } catch {
-      ElMessage.error('Failed to copy to clipboard');
-    }
+    ElMessage.success('Copied to clipboard');
+  } catch {
+    ElMessage.error('Failed to copy to clipboard');
   }
 };
 </script>
@@ -78,6 +86,7 @@ const copyUrl = async () => {
   <el-card>
     <template #header>Upload a Meme</template>
     
+    <!-- File upload area -->
     <el-upload
       drag
       action="#"
@@ -92,30 +101,38 @@ const copyUrl = async () => {
       </div>
     </el-upload>
     
+    <!-- Image preview -->
     <div v-if="previewUrl" class="preview">
       <el-image :src="previewUrl" fit="contain" style="max-height: 300px" />
     </div>
     
+    <!-- Tag and Share button -->
     <el-button 
       v-if="selectedFile" 
       type="primary" 
-      @click="upload" 
-      :loading="uploading"
+      @click="uploadAndAnalyze" 
+      :loading="processing"
       class="btn"
     >
-      {{ uploading ? 'Uploading...' : 'Upload' }}
+      {{ processing ? (uploading ? 'Uploading...' : 'Tagging...') : 'Tag and Share' }}
     </el-button>
     
-    <el-result v-if="uploadedImageUrl" icon="success" title="Upload Successful">
+    <!-- Results section -->
+    <el-result v-if="uploadedImageUrl" icon="success" title="Ready to Share">
       <template #extra>
+        <!-- Image URL -->
         <el-input v-model="uploadedImageUrl" readonly>
           <template #append>
-            <el-button @click="copyUrl" type="primary">
-              {{ copied ? 'Copied' : 'Copy' }}
-            </el-button>
+            <el-button @click="copyUrl" type="primary">Copy</el-button>
           </template>
         </el-input>
         <a :href="uploadedImageUrl" target="_blank" class="link">Open Image</a>
+        
+        <!-- Analysis results -->
+        <el-card v-if="imageAnalysis" class="analysis-card">
+          <template #header>AI Tags</template>
+          <p>{{ imageAnalysis }}</p>
+        </el-card>
       </template>
     </el-result>
   </el-card>
@@ -127,4 +144,5 @@ const copyUrl = async () => {
 .tip { color: #909399; font-size: 12px; margin-top: 10px; }
 .btn { display: block; margin: 20px auto; }
 .link { display: block; margin-top: 10px; text-align: center; }
+.analysis-card { margin-top: 20px; }
 </style> 

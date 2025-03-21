@@ -2,15 +2,22 @@
 import { ref, onMounted } from 'vue';
 import Auth from './components/Auth.vue';
 import MemeUploader from './components/MemeUploader.vue';
+import ApiKeySettings from './components/ApiKeySettings.vue';
+import UserAccount from './components/UserAccount.vue';
+import settingsStore from './store/settings';
 
-const isAuthenticated = ref(false);
+// Single source of truth for authentication state
+const isAuthenticated = ref(!!localStorage.getItem('auth_token'));
 
-// Check auth state on mount and listen for changes
+// Initialize settings on mount
 onMounted(() => {
-  isAuthenticated.value = !!localStorage.getItem('auth_token');
+  settingsStore.actions.initializeSettings();
   
+  // Listen for auth token changes from other tabs
   window.addEventListener('storage', (event) => {
-    if (event.key === 'auth_token') isAuthenticated.value = !!event.newValue;
+    if (event.key === 'auth_token') {
+      isAuthenticated.value = !!event.newValue;
+    }
   });
 });
 </script>
@@ -18,12 +25,20 @@ onMounted(() => {
 <template>
   <el-container direction="vertical" class="app">
     <el-header class="header">
-      <h1>Meme Tagger</h1>
-      <p>Upload and share your favorite memes</p>
+      <div class="header-content">
+        <div class="logo-section">
+          <h1>Meme Tagger</h1>
+          <p>Upload and share your favorite memes</p>
+        </div>
+        <div class="nav-section">
+          <UserAccount v-if="isAuthenticated" @logout="isAuthenticated = false" />
+          <ApiKeySettings />
+        </div>
+      </div>
     </el-header>
     
     <el-main>
-      <Auth @login-success="isAuthenticated = true" @logout="isAuthenticated = false" />
+      <Auth v-if="!isAuthenticated" @login-success="isAuthenticated = true" />
       <MemeUploader v-if="isAuthenticated" class="content" />
     </el-main>
     
@@ -46,9 +61,21 @@ body {
 .header {
   background-color: var(--el-color-primary);
   color: white;
-  text-align: center;
   padding: 20px !important;
   height: auto !important;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo-section {
+  display: flex;
+  flex-direction: column;
 }
 
 .header h1 { 
@@ -59,6 +86,12 @@ body {
 .header p { 
   margin: 10px 0 0;
   opacity: 0.8;
+}
+
+.nav-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .content {
