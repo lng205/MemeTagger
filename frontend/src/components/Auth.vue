@@ -1,45 +1,19 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ref } from 'vue';
 import Login from './Login.vue';
 import Register from './Register.vue';
 
-const isAuthenticated = ref(false);
 const activeTab = ref('login');
-const emit = defineEmits(['login-success', 'logout']);
+const emit = defineEmits(['login-success']);
 
 const handleLogin = () => {
-  isAuthenticated.value = true;
   emit('login-success');
 };
-
-const logout = () => {
-  localStorage.removeItem('auth_token');
-  isAuthenticated.value = false;
-  ElMessage.success('Logged out successfully');
-  emit('logout');
-};
-
-onMounted(() => {
-  const token = localStorage.getItem('auth_token');
-  isAuthenticated.value = !!token;
-  if (isAuthenticated.value) emit('login-success');
-});
-
-defineExpose({ isAuthenticated });
 </script>
 
 <template>
   <div class="auth-container">
-    <el-card v-if="isAuthenticated">
-      <template #header>User Account</template>
-      <div class="text-center">
-        <h3>You are logged in</h3>
-        <el-button type="danger" @click="logout">Logout</el-button>
-      </div>
-    </el-card>
-    
-    <el-card v-else>
+    <el-card>
       <template #header>Account Access</template>
       <el-tabs v-model="activeTab">
         <el-tab-pane label="Login" name="login">
@@ -59,7 +33,13 @@ defineExpose({ isAuthenticated });
   margin: 0 auto;
 }
 
-.text-center {
-  text-align: center;
+/* Fix autofill background and text color */
+:deep(input:-webkit-autofill),
+:deep(input:-webkit-autofill:hover),
+:deep(input:-webkit-autofill:focus) {
+  -webkit-box-shadow: 0 0 0 1000px var(--el-fill-color-blank, #fff) inset !important;
+  -webkit-text-fill-color: var(--el-text-color-primary, #303133) !important;
+  caret-color: var(--el-color-primary, #409eff);
+  transition: background-color 5000s ease-in-out 0s;
 }
 </style> 

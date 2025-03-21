@@ -3,19 +3,21 @@ import { ref, onMounted } from 'vue';
 import Auth from './components/Auth.vue';
 import MemeUploader from './components/MemeUploader.vue';
 import ApiKeySettings from './components/ApiKeySettings.vue';
+import UserAccount from './components/UserAccount.vue';
 import settingsStore from './store/settings';
 
-const isAuthenticated = ref(false);
+// Single source of truth for authentication state
+const isAuthenticated = ref(!!localStorage.getItem('auth_token'));
 
-// Check auth state on mount and listen for changes
+// Initialize settings on mount
 onMounted(() => {
-  isAuthenticated.value = !!localStorage.getItem('auth_token');
-  
-  // Initialize settings from localStorage
   settingsStore.actions.initializeSettings();
   
+  // Listen for auth token changes from other tabs
   window.addEventListener('storage', (event) => {
-    if (event.key === 'auth_token') isAuthenticated.value = !!event.newValue;
+    if (event.key === 'auth_token') {
+      isAuthenticated.value = !!event.newValue;
+    }
   });
 });
 </script>
@@ -24,18 +26,19 @@ onMounted(() => {
   <el-container direction="vertical" class="app">
     <el-header class="header">
       <div class="header-content">
-        <div>
+        <div class="logo-section">
           <h1>Meme Tagger</h1>
           <p>Upload and share your favorite memes</p>
         </div>
-        <div class="settings-section">
+        <div class="nav-section">
+          <UserAccount v-if="isAuthenticated" @logout="isAuthenticated = false" />
           <ApiKeySettings />
         </div>
       </div>
     </el-header>
     
     <el-main>
-      <Auth @login-success="isAuthenticated = true" @logout="isAuthenticated = false" />
+      <Auth v-if="!isAuthenticated" @login-success="isAuthenticated = true" />
       <MemeUploader v-if="isAuthenticated" class="content" />
     </el-main>
     
@@ -70,6 +73,11 @@ body {
   margin: 0 auto;
 }
 
+.logo-section {
+  display: flex;
+  flex-direction: column;
+}
+
 .header h1 { 
   margin: 0;
   font-size: 2em;
@@ -80,9 +88,10 @@ body {
   opacity: 0.8;
 }
 
-.settings-section {
+.nav-section {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 16px;
 }
 
 .content {

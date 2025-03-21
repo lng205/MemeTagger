@@ -8,6 +8,8 @@ import com.meme.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.login.AccountException;
@@ -40,5 +42,12 @@ public class UserController {
             return Result.error(e.getMessage());
         }
         return Result.success();
+    }
+
+    @GetMapping
+    public Result<String> getUser(@AuthenticationPrincipal Jwt jwt) {
+        Long id = jwt.getClaim("id");
+        User user = userService.getById(id.intValue());
+        return Result.success(user.getUsername());
     }
 }

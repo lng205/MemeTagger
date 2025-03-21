@@ -24,7 +24,9 @@ export const userService = {
     return api.post('/user/login', {}, {
       headers: { Authorization: `Basic ${token}` }
     });
-  }
+  },
+  
+  getCurrentUser: () => api.get('/user')
 };
 
 export const uploadService = {
