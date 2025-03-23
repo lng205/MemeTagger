@@ -13,8 +13,18 @@ CREATE TABLE `meme` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `url` VARCHAR(255) NOT NULL,
   `user_id` INT NOT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `tags` VARCHAR(255)
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-# TODO Build tag table
+DROP TABLE IF EXISTS `tag`;
+CREATE TABLE `tag` (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL UNIQUE
+);
+
+DROP TABLE IF EXISTS `meme_tag`;
+CREATE TABLE `meme_tag` (
+  `meme_id` INT NOT NULL,
+  `tag_id` INT NOT NULL,
+  PRIMARY KEY (`meme_id`, `tag_id`)
+);

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.meme.mapper.TagMapper">
+    <resultMap id="tagsByMemeIdMap" type="java.util.HashMap">
+        <id property="key" column="meme_id"/>
+        <collection property="value" ofType="com.meme.entity.Tag" javaType="java.util.ArrayList">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+        </collection>
+    </resultMap>
+    <select id="getTagsByMemeIds" resultMap="tagsByMemeIdMap">
+        SELECT mt.meme_id, t.id, t.name
+        FROM meme_tag mt LEFT JOIN tag t
+        ON mt.tag_id = t.id
+        WHERE mt.meme_id IN
+        <foreach collection="list" item="memeId" open="(" separator="," close=")">
+            #{memeId}
+        </foreach>
+    </select>
+</mapper>
