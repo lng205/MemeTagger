@@ -1,5 +1,6 @@
 package com.meme.vo;
 
+import com.meme.entity.Meme;
 import com.meme.entity.Tag;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,18 @@ public class MemeVO {
     private List<Tag> tags = new ArrayList<>();
 
     public MemeVO() {}
+
+    public MemeVO(Integer id, String url) {
+        this.id = id;
+        this.url = url;
+    }
+
+    public MemeVO(Meme meme) {
+        this.id = meme.getId();
+        this.url = meme.getUrl();
+        this.userId = meme.getUserId();
+        this.createdAt = meme.getCreatedAt();
+    }
 
     public Integer getId() {return id;}
     public void setId(Integer id) {this.id = id;}

@@ -1,8 +1,10 @@
 package com.meme.controller;
 
+import com.meme.entity.Meme;
 import com.meme.result.Result;
 import com.meme.service.MemeService;
 import com.meme.utils.GoogleCloudStorageUtils;
+import com.meme.vo.MemeVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,7 +28,7 @@ public class CommonController {
     }
 
     @PostMapping(value = "/upload", produces = "application/json")
-    public Result<String> upload(@RequestPart("file") MultipartFile file,
+    public Result<MemeVO> upload(@RequestPart("file") MultipartFile file,
                                  @AuthenticationPrincipal Jwt principal) {
         String fileName = file.getOriginalFilename();
         assert fileName != null;
@@ -38,8 +40,8 @@ public class CommonController {
         try {
             String url = googleCloudStorageUtils.uploadImage(objectName, file.getBytes());
             Long userId = principal.getClaim("id");
-            memeService.save(url, userId.intValue());
-            return Result.success(url);
+            Meme meme = memeService.save(url, userId.intValue());
+            return Result.success(new MemeVO(meme));
         } catch (IOException e) {
             logger.error("Upload file failed", e);
             throw new RuntimeException(e);

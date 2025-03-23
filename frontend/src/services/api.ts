@@ -58,6 +58,14 @@ export const uploadService = {
   }
 };
 
+export const tagService = {
+  // Get tags for a specific meme
+  getTagsByMemeId: (memeId: number) => api.get(`/tag/${memeId}`),
+  
+  // Set tags for a specific meme
+  setTagsForMeme: (memeId: number, tags: string[]) => api.post(`/tag/${memeId}`, tags)
+};
+
 // Initialize default OpenAI client with env API key
 const createOpenAIClient = (apiKey?: string) => {
   // Priority: 1. Provided key, 2. Global key in settings, 3. Environment variable

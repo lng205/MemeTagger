@@ -1,16 +1,18 @@
 package com.meme.mapper;
 
 import com.github.pagehelper.Page;
+import com.meme.entity.Meme;
 import com.meme.vo.MemeVO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Options;
 
 @Mapper
 public interface MemeMapper {
 
     @Insert("INSERT INTO meme(url, user_id) VALUES(#{url}, #{userId})")
-    void insert(@Param("url") String url, @Param("userId") Integer userId);
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    void insert(Meme meme);
 
     MemeVO getMeme(Integer id);
 

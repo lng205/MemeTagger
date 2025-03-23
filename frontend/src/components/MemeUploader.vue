@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
-import { uploadService, openaiService } from '../services/api';
+import { uploadService, openaiService, tagService } from '../services/api';
 
 // File upload state
 const selectedFile = ref<File | null>(null);
@@ -12,9 +12,22 @@ const uploadedImageUrl = ref('');
 // Analysis state
 const analyzing = ref(false);
 const imageAnalysis = ref('');
+const memeId = ref<number | null>(null);
 
 // Processing state (combined uploading and analyzing)
 const processing = ref(false);
+
+// Parse hashtags from AI response
+const parseHashtags = (text: string): string[] => {
+  // Extract all hashtags from the text
+  const hashtagRegex = /#\w+/g;
+  const matches = text.match(hashtagRegex);
+  
+  if (!matches) return [];
+  
+  // Remove the # symbol and return unique tags
+  return [...new Set(matches.map(tag => tag.substring(1)))];
+};
 
 // Handle file selection
 const handleFileChange = (file: File | null) => {
@@ -46,7 +59,12 @@ const uploadAndAnalyze = async () => {
     // Upload step
     const res = await uploadService.uploadImage(selectedFile.value);
     if (res.data?.code === 1) {
-      uploadedImageUrl.value = res.data.data;
+      // Store the image URL from the response
+      uploadedImageUrl.value = res.data.data.url;
+      
+      // Get meme ID directly from the response data
+      memeId.value = res.data.data.id;
+      
       uploading.value = false;
       
       // Analyze step
@@ -54,7 +72,22 @@ const uploadAndAnalyze = async () => {
       const result = await openaiService.analyzeImage(uploadedImageUrl.value);
       if (result.success) {
         imageAnalysis.value = result.data || '';
-        ElMessage.success('Meme tagged successfully');
+        
+        // Parse hashtags from AI response
+        const tags = parseHashtags(imageAnalysis.value);
+        
+        // If we have tags and a meme ID, save them
+        if (tags.length > 0 && memeId.value) {
+          try {
+            await tagService.setTagsForMeme(memeId.value, tags);
+            ElMessage.success('Meme tagged successfully');
+          } catch (tagError) {
+            console.error('Failed to save tags:', tagError);
+            ElMessage.warning('Image processed but tags could not be saved');
+          }
+        } else {
+          ElMessage.success('Image processed successfully');
+        }
       } else {
         ElMessage.error(`Analysis failed: ${result.error}`);
       }
@@ -146,7 +179,17 @@ const copyUrl = async () => {
         <!-- Analysis results -->
         <el-card v-if="imageAnalysis" class="analysis-card">
           <template #header>AI Tags</template>
-          <p>{{ imageAnalysis }}</p>
+          <div class="tags-container">
+            <el-tag 
+              v-for="tag in parseHashtags(imageAnalysis)" 
+              :key="tag"
+              class="tag"
+              type="info"
+              effect="plain"
+            >
+              #{{ tag }}
+            </el-tag>
+          </div>
         </el-card>
       </template>
     </el-result>
@@ -160,4 +203,12 @@ const copyUrl = async () => {
 .btn { display: block; margin: 20px auto; }
 .link { display: block; margin-top: 10px; text-align: center; }
 .analysis-card { margin-top: 20px; }
+.tags-container { 
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tag {
+  margin-right: 0;
+}
 </style> 

@@ -3,6 +3,7 @@ package com.meme.service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.meme.dto.MemePageQueryDTO;
+import com.meme.entity.Meme;
 import com.meme.entity.Tag;
 import com.meme.mapper.MemeMapper;
 import com.meme.mapper.TagMapper;
@@ -23,8 +24,10 @@ public class MemeService {
         this.tagMapper = tagMapper;
     }
 
-    public void save(String url, Integer userId) {
-        memeMapper.insert(url, userId);
+    public Meme save(String url, Integer userId) {
+        Meme meme = new Meme(url, userId);
+        memeMapper.insert(meme);
+        return meme;
     }
 
     public MemeVO getMeme(Integer id) {
