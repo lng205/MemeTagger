@@ -3,9 +3,9 @@ package com.meme.mapper;
 import com.github.pagehelper.Page;
 import com.meme.entity.Meme;
 import com.meme.vo.MemeVO;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.*;
+
+import java.util.List;
 
 @Mapper
 public interface MemeMapper {
@@ -16,5 +16,8 @@ public interface MemeMapper {
 
     MemeVO getMeme(Integer id);
 
-    Page<MemeVO> pageQuery(int userId);
+    List<MemeVO> getMemes(List<Integer> memeIds);
+
+    @Select("SELECT meme.id FROM meme WHERE user_id = #{userId}")
+    Page<Integer> getMemeIdsOnPageByUser(int userId);
 }

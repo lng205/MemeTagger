@@ -21,13 +21,14 @@ const login = async () => {
     
     if (response.data?.data) {
       localStorage.setItem('auth_token', response.data.data);
-      emit('login-success');
       ElMessage.success('Login successful');
+      emit('login-success');
     } else {
       ElMessage.error('Login failed: No token received');
     }
-  } catch {
+  } catch (error) {
     ElMessage.error('Login failed. Please try again.');
+    console.error('Login error:', error);
   } finally {
     loading.value = false;
   }

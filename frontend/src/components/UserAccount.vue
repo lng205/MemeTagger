@@ -1,29 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import { userService } from '../services/api';
+import userStore from '../store/user';
 
-const username = ref('');
-const loading = ref(true);
 const emit = defineEmits(['logout']);
-
-// Fetch username on component mount
-onMounted(async () => {
-  try {
-    const response = await userService.getCurrentUser();
-    if (response.data?.code === 1) {
-      username.value = response.data.data;
-    }
-  } catch {
-    // Silent fail - let the App handle authentication errors
-  } finally {
-    loading.value = false;
-  }
-});
 
 // Handle logout
 const logout = () => {
-  localStorage.removeItem('auth_token');
+  userStore.actions.logout();
   ElMessage.success('Logged out successfully');
   emit('logout');
 };
@@ -31,12 +14,12 @@ const logout = () => {
 
 <template>
   <div class="user-account">
-    <div v-if="username" class="user-info">
+    <div v-if="userStore.state.username" class="user-info">
       <el-avatar size="small" :icon="'User'" />
-      <span class="username">{{ username }}</span>
+      <span class="username">{{ userStore.state.username }}</span>
       <el-button size="small" type="danger" @click="logout">Logout</el-button>
     </div>
-    <el-skeleton v-else-if="loading" :rows="1" style="width: 80px" animated />
+    <el-skeleton v-else-if="userStore.state.loading" :rows="1" style="width: 80px" animated />
   </div>
 </template>
 

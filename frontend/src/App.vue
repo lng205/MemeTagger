@@ -1,29 +1,45 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import Auth from './components/Auth.vue';
 import MemeUploader from './components/MemeUploader.vue';
+import MemeBrowser from './components/MemeBrowser.vue';
 import ApiKeySettings from './components/ApiKeySettings.vue';
 import UserAccount from './components/UserAccount.vue';
 import settingsStore from './store/settings';
+import userStore from './store/user';
 
-// Single source of truth for authentication state
-const isAuthenticated = ref(!!localStorage.getItem('auth_token'));
+// Active tab
+const activeTab = ref('upload');
 
-// Initialize settings on mount
-onMounted(() => {
+// Initialize app
+onMounted(async () => {
+  // Initialize settings
   settingsStore.actions.initializeSettings();
   
-  // Listen for auth token changes from other tabs
-  window.addEventListener('storage', (event) => {
+  // Fetch user information if token exists
+  await userStore.actions.fetchCurrentUser();
+  
+  // Listen for auth token changes
+  window.addEventListener('storage', async (event) => {
     if (event.key === 'auth_token') {
-      isAuthenticated.value = !!event.newValue;
+      if (event.newValue) {
+        await userStore.actions.fetchCurrentUser();
+      } else {
+        userStore.actions.setAuthenticated(false);
+      }
     }
   });
 });
+
+// Handle login success
+const handleLoginSuccess = async () => {
+  await userStore.actions.fetchCurrentUser();
+};
 </script>
 
 <template>
   <el-container direction="vertical" class="app">
+    <!-- Header -->
     <el-header class="header">
       <div class="header-content">
         <div class="logo-section">
@@ -31,17 +47,27 @@ onMounted(() => {
           <p>Upload and share your favorite memes</p>
         </div>
         <div class="nav-section">
-          <UserAccount v-if="isAuthenticated" @logout="isAuthenticated = false" />
+          <UserAccount v-if="userStore.state.isAuthenticated" @logout="userStore.actions.setAuthenticated(false)" />
           <ApiKeySettings />
         </div>
       </div>
     </el-header>
     
+    <!-- Main content -->
     <el-main>
-      <Auth v-if="!isAuthenticated" @login-success="isAuthenticated = true" />
-      <MemeUploader v-if="isAuthenticated" class="content" />
+      <Auth v-if="!userStore.state.isAuthenticated" @login-success="handleLoginSuccess" />
+      
+      <el-tabs v-if="userStore.state.isAuthenticated" v-model="activeTab" type="card" class="main-tabs">
+        <el-tab-pane label="Upload" name="upload">
+          <MemeUploader class="content" />
+        </el-tab-pane>
+        <el-tab-pane label="Browse" name="browse">
+          <MemeBrowser />
+        </el-tab-pane>
+      </el-tabs>
     </el-main>
     
+    <!-- Footer -->
     <el-footer class="footer">
       &copy; {{ new Date().getFullYear() }} Meme Tagger
     </el-footer>
@@ -58,6 +84,7 @@ body {
 
 .app { min-height: 100vh; }
 
+/* Header styles */
 .header {
   background-color: var(--el-color-primary);
   color: white;
@@ -73,32 +100,16 @@ body {
   margin: 0 auto;
 }
 
-.logo-section {
-  display: flex;
-  flex-direction: column;
-}
+.logo-section { display: flex; flex-direction: column; }
+.header h1 { margin: 0; font-size: 2em; }
+.header p { margin: 10px 0 0; opacity: 0.8; }
+.nav-section { display: flex; align-items: center; gap: 16px; }
 
-.header h1 { 
-  margin: 0;
-  font-size: 2em;
-}
+/* Content styles */
+.main-tabs { max-width: 1200px; margin: 0 auto; }
+.content { max-width: 600px; margin: 30px auto 0; }
 
-.header p { 
-  margin: 10px 0 0;
-  opacity: 0.8;
-}
-
-.nav-section {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.content {
-  max-width: 600px;
-  margin: 30px auto 0;
-}
-
+/* Footer styles */
 .footer {
   background-color: var(--el-color-primary-light-9);
   color: var(--el-color-primary-dark-2);

@@ -24,7 +24,7 @@ public class MemeController {
     }
 
     @GetMapping
-    public Result<List<MemeVO>> getUserMemeByPage(MemePageQueryDTO memePageQueryDTO) {
-        return Result.success(memeService.pageQuery(memePageQueryDTO));
+    public Result<List<MemeVO>> getUserMemePage(MemePageQueryDTO memePageQueryDTO) {
+        return Result.success(memeService.getMemePageByUser(memePageQueryDTO));
     }
 }

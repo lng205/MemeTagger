@@ -23,6 +23,4 @@ public interface TagMapper {
 
     @Insert("INSERT INTO meme_tag (meme_id, tag_id) VALUES (#{memeId}, #{tagId})")
     void insertMemeTag(@Param("memeId") Integer memeId, @Param("tagId") Integer tagId);
-
-    Map<Integer, List<Tag>> getTagsByMemeIds(List<Integer> memeIds);
 }

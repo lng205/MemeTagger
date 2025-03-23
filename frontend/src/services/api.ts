@@ -20,13 +20,8 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(
   response => response, 
   error => {
-    // If we get a 401 error, the token is invalid or expired
-    if (error.response && error.response.status === 401) {
-      // Clear the auth token
+    if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
-      
-      // Force page refresh to redirect to the login page 
-      // (App.vue will handle showing the Auth component)
       window.location.reload();
     }
     return Promise.reject(error);
@@ -59,28 +54,28 @@ export const uploadService = {
 };
 
 export const tagService = {
-  // Get tags for a specific meme
   getTagsByMemeId: (memeId: number) => api.get(`/tag/${memeId}`),
-  
-  // Set tags for a specific meme
   setTagsForMeme: (memeId: number, tags: string[]) => api.post(`/tag/${memeId}`, tags)
 };
 
-// Initialize default OpenAI client with env API key
+export const memeService = {
+  getMemesByUser: (userId: number, page: number = 1, pageSize: number = 10) => 
+    api.get('/meme', { params: { userId, page, pageSize } }),
+  getMemeById: (id: number) => api.get(`/meme/${id}`)
+};
+
+// Initialize OpenAI client
 const createOpenAIClient = (apiKey?: string) => {
-  // Priority: 1. Provided key, 2. Global key in settings, 3. Environment variable
   const key = apiKey || settingsStore.state.openaiApiKey || import.meta.env.VITE_OPENAI_API_KEY;
-  
   return new OpenAI({
     apiKey: key,
-    dangerouslyAllowBrowser: true // Allows using API key in browser
+    dangerouslyAllowBrowser: true
   });
 };
 
 export const openaiService = {
   analyzeImage: async (imageUrl: string, apiKey?: string) => {
     try {
-      // Create client with user-provided API key or fall back to global settings
       const openai = createOpenAIClient(apiKey);
       
       const response = await openai.responses.create({
@@ -89,11 +84,7 @@ export const openaiService = {
           role: "user",
           content: [
             { type: "input_text", text: MEME_ANALYSIS_PROMPT },
-            {
-              type: "input_image",
-              image_url: imageUrl,
-              detail: "auto"
-            },
+            { type: "input_image", image_url: imageUrl, detail: "auto" },
           ],
         }],
       });

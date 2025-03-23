@@ -4,14 +4,12 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.meme.dto.MemePageQueryDTO;
 import com.meme.entity.Meme;
-import com.meme.entity.Tag;
 import com.meme.mapper.MemeMapper;
 import com.meme.mapper.TagMapper;
 import com.meme.vo.MemeVO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class MemeService {
@@ -36,17 +34,11 @@ public class MemeService {
         return meme;
     }
 
-    public List<MemeVO> pageQuery(MemePageQueryDTO memePageQueryDTO) {
+    public List<MemeVO> getMemePageByUser(MemePageQueryDTO memePageQueryDTO) {
+        // TODO return total meme count
         PageHelper.startPage(memePageQueryDTO.page(), memePageQueryDTO.pageSize());
+        Page<Integer> memeIds = memeMapper.getMemeIdsOnPageByUser(memePageQueryDTO.userId());
 
-        Page<MemeVO> memePage = memeMapper.pageQuery(memePageQueryDTO.userId());
-        List<Integer> memeIds = memePage.getResult().stream().map(MemeVO::getId).toList();
-        if (!memeIds.isEmpty()) {
-            Map<Integer, List<Tag>> memeTags = tagMapper.getTagsByMemeIds(memeIds);
-            for (MemeVO meme : memePage.getResult()) {
-                meme.setTags(memeTags.get(meme.getId()));
-            }
-        }
-        return memePage.getResult();
+        return memeMapper.getMemes(memeIds.getResult());
     }
 }
