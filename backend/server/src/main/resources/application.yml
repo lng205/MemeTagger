@@ -2,7 +2,7 @@ google:
   cloud:
     project-id: "utility-ratio-448006-a2"
     bucket-name: "memetagger"
-    credentials: "C:/Users/youbi/code/utility-ratio-448006-a2-519c65743d5e.json"
+    credentials: "classpath:certs/googleCloud.json"
 spring:
   datasource:
     username: root

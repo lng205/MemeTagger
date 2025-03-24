@@ -6,10 +6,11 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 
@@ -22,12 +23,13 @@ public class GoogleCloudStorageUtils {
     public GoogleCloudStorageUtils(
             @Value("${google.cloud.project-id}") String projectId,
             @Value("${google.cloud.bucket-name}") String bucketName,
-            @Value("${google.cloud.credentials}") String credentialsPath) throws IOException {
+            @Value("${google.cloud.credentials}") String credentialsPath,
+            ResourceLoader resourceLoader) throws IOException {
         this.bucketName = bucketName;
 
         // ADC environment variable does not work
-        GoogleCredentials credentials = GoogleCredentials
-            .fromStream(new FileInputStream(credentialsPath));
+        Resource resource = resourceLoader.getResource(credentialsPath);
+        GoogleCredentials credentials = GoogleCredentials.fromStream(resource.getInputStream());
 
         this.storage = StorageOptions
             .newBuilder()
