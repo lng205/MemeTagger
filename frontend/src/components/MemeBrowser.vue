@@ -26,6 +26,11 @@ const total = ref(0);
 // Get current user ID from store
 const userId = computed(() => userStore.state.id || 0);
 
+// Get sorted memes (newest first)
+const sortedMemes = computed(() => {
+  return [...memes.value].sort((a, b) => b.id - a.id);
+});
+
 // Load memes on component mount
 onMounted(() => loadMemes());
 
@@ -69,7 +74,7 @@ const formatDate = (dateString: string) => new Date(dateString).toLocaleDateStri
     <!-- Meme grid -->
     <div v-else class="meme-grid">
       <el-card 
-        v-for="meme in memes" 
+        v-for="meme in sortedMemes" 
         :key="meme.id" 
         class="meme-card"
         shadow="hover"
