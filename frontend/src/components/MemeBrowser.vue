@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, defineExpose } from 'vue';
 import { ElMessage } from 'element-plus';
 import { memeService } from '../services/api';
 import userStore from '../store/user';
@@ -56,6 +56,9 @@ async function loadMemes() {
     loading.value = false;
   }
 }
+
+// Expose loadMemes method to parent components
+defineExpose({ loadMemes });
 
 // Format date from ISO string
 const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString();

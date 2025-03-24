@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import Auth from './components/Auth.vue';
 import MemeUploader from './components/MemeUploader.vue';
 import MemeBrowser from './components/MemeBrowser.vue';
@@ -10,6 +10,7 @@ import userStore from './store/user';
 
 // Active tab
 const activeTab = ref('upload');
+const memeBrowserRef = ref();
 
 // Initialize app
 onMounted(async () => {
@@ -59,10 +60,10 @@ const handleLoginSuccess = async () => {
       
       <el-tabs v-if="userStore.state.isAuthenticated" v-model="activeTab" type="card" class="main-tabs">
         <el-tab-pane label="Upload" name="upload">
-          <MemeUploader class="content" />
+          <MemeUploader @refetch="memeBrowserRef?.loadMemes()" class="content"/>
         </el-tab-pane>
         <el-tab-pane label="Browse" name="browse">
-          <MemeBrowser />
+          <MemeBrowser ref="memeBrowserRef" />
         </el-tab-pane>
       </el-tabs>
     </el-main>

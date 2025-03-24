@@ -16,6 +16,7 @@ const memeId = ref<number | null>(null);
 
 // Processing state (combined uploading and analyzing)
 const processing = ref(false);
+const emit = defineEmits(['refetch']);
 
 // Parse hashtags from AI response
 const parseHashtags = (text: string): string[] => {
@@ -81,6 +82,7 @@ const uploadAndAnalyze = async () => {
           try {
             await tagService.setTagsForMeme(memeId.value, tags);
             ElMessage.success('Meme tagged successfully');
+            emit('refetch');
           } catch (tagError) {
             console.error('Failed to save tags:', tagError);
             ElMessage.warning('Image processed but tags could not be saved');
