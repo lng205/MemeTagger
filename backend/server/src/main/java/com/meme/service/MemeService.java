@@ -10,6 +10,7 @@ import com.meme.result.PageResult;
 import com.meme.vo.MemeVO;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -38,6 +39,12 @@ public class MemeService {
     public PageResult<MemeVO> getMemePageByUser(MemePageQueryDTO memePageQueryDTO) {
         PageHelper.startPage(memePageQueryDTO.page(), memePageQueryDTO.pageSize());
         Page<Integer> memeIds = memeMapper.getMemeIdsOnPageByUser(memePageQueryDTO.userId());
+        
+        // Handle empty page early
+        if (memeIds == null || memeIds.isEmpty()) {
+            return new PageResult<>(0L, Collections.emptyList());
+        }
+        
         List<MemeVO> memes = memeMapper.getMemes(memeIds);
         return new PageResult<>(memeIds.getTotal(), memes);
     }
