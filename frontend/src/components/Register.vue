@@ -24,7 +24,7 @@ const register = async () => {
   
   try {
     const response = await userService.register(username.value, password.value);
-    if (response.data.code === 200) {
+    if (response.data.code === 1) {
       ElMessage.success('Registration successful!');
       emit('register-success');
     } else {
