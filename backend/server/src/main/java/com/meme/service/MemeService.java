@@ -6,6 +6,7 @@ import com.meme.dto.MemePageQueryDTO;
 import com.meme.entity.Meme;
 import com.meme.mapper.MemeMapper;
 import com.meme.mapper.TagMapper;
+import com.meme.result.PageResult;
 import com.meme.vo.MemeVO;
 import org.springframework.stereotype.Service;
 
@@ -34,11 +35,10 @@ public class MemeService {
         return meme;
     }
 
-    public List<MemeVO> getMemePageByUser(MemePageQueryDTO memePageQueryDTO) {
-        // TODO return total meme count
+    public PageResult<MemeVO> getMemePageByUser(MemePageQueryDTO memePageQueryDTO) {
         PageHelper.startPage(memePageQueryDTO.page(), memePageQueryDTO.pageSize());
         Page<Integer> memeIds = memeMapper.getMemeIdsOnPageByUser(memePageQueryDTO.userId());
-
-        return memeMapper.getMemes(memeIds.getResult());
+        List<MemeVO> memes = memeMapper.getMemes(memeIds);
+        return new PageResult<>(memeIds.getTotal(), memes);
     }
 }

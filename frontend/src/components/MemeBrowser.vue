@@ -21,6 +21,7 @@ const memes = ref<Meme[]>([]);
 const loading = ref(true);
 const currentPage = ref(1);
 const pageSize = ref(6);
+const total = ref(0);
 
 // Get current user ID from store
 const userId = computed(() => userStore.state.id || 0);
@@ -36,7 +37,10 @@ async function loadMemes() {
     const response = await memeService.getMemesByUser(userId.value, currentPage.value, pageSize.value);
     
     if (response.data?.code === 1) {
-      memes.value = response.data.data || [];
+      // Update with new API response format
+      const responseData = response.data.data;
+      memes.value = responseData.records || [];
+      total.value = responseData.total || 0;
     } else {
       ElMessage.error('Failed to load memes');
     }
@@ -112,7 +116,7 @@ const formatDate = (dateString: string) => new Date(dateString).toLocaleDateStri
         v-model:current-page="currentPage"
         :page-size="pageSize"
         layout="prev, pager, next"
-        :total="100"
+        :total="total"
         @current-change="loadMemes"
       />
     </div>

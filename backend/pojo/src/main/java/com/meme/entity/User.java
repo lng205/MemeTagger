@@ -1,5 +1,6 @@
 package com.meme.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -9,6 +10,8 @@ import java.util.List;
 public class User implements UserDetails {
     Integer id;
     String username;
+
+    @JsonIgnore
     String password;
 
     public User(String username, String password) {

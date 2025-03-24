@@ -5,7 +5,6 @@ import com.meme.entity.User;
 import com.meme.result.Result;
 import com.meme.service.TokenService;
 import com.meme.service.UserService;
-import com.meme.vo.UserVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -46,9 +45,9 @@ public class UserController {
     }
 
     @GetMapping
-    public Result<UserVO> getUser(@AuthenticationPrincipal Jwt jwt) {
+    public Result<User> getUser(@AuthenticationPrincipal Jwt jwt) {
         Long id = jwt.getClaim("id");
         User user = userService.getById(id.intValue());
-        return Result.success(new UserVO(user.getId(), user.getUsername()));
+        return Result.success(user);
     }
 }

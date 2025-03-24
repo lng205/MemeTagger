@@ -1,12 +1,11 @@
 package com.meme.controller;
 
 import com.meme.dto.MemePageQueryDTO;
+import com.meme.result.PageResult;
 import com.meme.result.Result;
 import com.meme.service.MemeService;
 import com.meme.vo.MemeVO;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/meme")
@@ -24,7 +23,8 @@ public class MemeController {
     }
 
     @GetMapping
-    public Result<List<MemeVO>> getUserMemePage(MemePageQueryDTO memePageQueryDTO) {
-        return Result.success(memeService.getMemePageByUser(memePageQueryDTO));
+    public Result<PageResult<MemeVO>> getUserMemePage(MemePageQueryDTO memePageQueryDTO) {
+        PageResult<MemeVO> memes = memeService.getMemePageByUser(memePageQueryDTO);
+        return Result.success(memes);
     }
 }
