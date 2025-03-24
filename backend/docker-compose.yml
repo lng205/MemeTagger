@@ -1,9 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      # dockerfile: build.dockerfile
+    image: lng205/meme-tagger:latest
     ports:
       - "8080:8080"
     environment:
