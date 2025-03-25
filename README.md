@@ -6,113 +6,35 @@ A web application for uploading, tagging, and sharing your favorite memes with A
 
 Meme Tagger is a full-stack application that allows users to upload meme images, automatically analyze them using AI, add custom tags, and browse a collection of memes. The application features user authentication, image uploading, and AI-powered content analysis.
 
-## Features
+## Frontend
 
-- **User Authentication**
-  - User registration and login
-  - JWT token-based authentication
-  - Secure password handling
+The frontend is a Vue application that uses Element Plus for styling.
 
-- **Meme Management**
-  - Upload meme images
-  - AI-powered meme analysis using OpenAI
-  - Add and edit tags for memes
-  - Browse memes with pagination
-  - Copy meme URLs to clipboard
+### Deployment
 
-- **User Interface**
-  - Responsive design using Element Plus
-  - Tab-based navigation
-  - User account management
-  - OpenAI API key configuration
+Frontend use [github actions](.github/workflows/deploy-frontend.yml) for CI/CD.
 
-## Technologies
+- The building process requires a VITE_API_URL environment variable for the backend URL. Set it in the repository settings(Settings -> Secrets and variables -> Actions -> New repository secret).
 
-### Frontend
-- Vue.js 3 (Composition API)
-- Element Plus UI framework
-- TypeScript
-- Axios for API requests
+- You may also run `npm run build` to build the frontend locally.
 
-### Backend
-- RESTful API architecture
-- JWT authentication
-- File upload handling
+## Backend
 
-### AI Integration
-- OpenAI API for meme analysis
+The backend is a Java application that uses Spring Boot and Spring Security.
 
-## Setup
+### Deployment
 
-### Prerequisites
-- Node.js and npm installed
-- API server running (see backend setup)
-- OpenAI API key (optional for AI features)
+Backend use docker compose for deploy the java application and mysql database.
 
-### Installation
+Running `docker compose up` will start the backend server on localhost:8080.
 
-1. Clone the repository
-   ```
-   git clone https://github.com/yourusername/meme-tagger.git
-   cd meme-tagger
-   ```
+- Run `docker compose down` to stop the backend server. Run `docker compose down -v` to stop the backend server and remove the sql volume.
 
-2. Install dependencies
-   ```
-   cd frontend
-   npm install
-   ```
+#### nginx
 
-3. Start the development server
-   ```
-   npm run dev
-   ```
-
-## Usage
-
-1. **Register/Login**: Create a new account or log in with existing credentials
-2. **Upload Meme**: Upload an image file through the Upload tab
-3. **AI Analysis**: If OpenAI API key is configured, get automatic analysis of the meme
-4. **Add Tags**: Add custom tags to categorize your memes
-5. **Browse Memes**: View and filter uploaded memes in the Browse tab
-
-## Project Structure
-
-```
-frontend/
-├── src/
-│   ├── components/         # Vue components
-│   │   ├── Auth.vue        # Authentication container
-│   │   ├── Login.vue       # Login form
-│   │   ├── Register.vue    # Registration form
-│   │   ├── MemeUploader.vue # Image upload component
-│   │   ├── MemeBrowser.vue # Browse uploaded memes
-│   │   └── ...
-│   ├── services/
-│   │   ├── api.ts          # API service with Axios
-│   │   └── aiPrompts.ts    # AI prompts for OpenAI
-│   ├── store/
-│   │   ├── user.ts         # User state management
-│   │   └── settings.ts     # App settings state
-│   └── App.vue             # Main application component
+```bash
+sudo cp api.memetagger.site.conf /etc/nginx/sites-available/
+sudo ln -s /etc/nginx/sites-available/api.memetagger.site.conf /etc/nginx/sites-enabled/
 ```
 
-## API Endpoints
-
-### User Management
-- `PUT /user/register` - Register new user
-- `POST /user/login` - Login user
-- `GET /user` - Get current user details
-
-### Meme Management
-- `POST /common/upload` - Upload image file
-- `GET /meme` - Get memes with pagination
-- `GET /meme/:id` - Get meme by ID
-
-### Tag Management
-- `GET /tag/:memeId` - Get tags for a meme
-- `POST /tag/:memeId` - Set tags for a meme
-
-<!-- ## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.  -->
+- Sets up https to avoid mixed content issues using [certbot](https://certbot.eff.org/).
