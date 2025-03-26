@@ -3,6 +3,7 @@ import { ref, onMounted, computed, defineExpose } from 'vue';
 import { ElMessage } from 'element-plus';
 import { memeService } from '../services/api';
 import userStore from '../store/user';
+import { useRouter } from 'vue-router';
 
 interface Tag {
   id: number;
@@ -22,6 +23,8 @@ const loading = ref(true);
 const currentPage = ref(1);
 const pageSize = ref(6);
 const total = ref(0);
+
+const router = useRouter();
 
 // Get current user ID from store
 const userId = computed(() => userStore.state.id || 0);
@@ -62,12 +65,15 @@ defineExpose({ loadMemes });
 
 // Format date from ISO string
 const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString();
+
+// Add click handler for meme card
+const handleMemeClick = (memeId: number) => {
+  router.push(`/meme/${memeId}`);
+};
 </script>
 
 <template>
   <div class="meme-browser">
-    <h2 class="title">Browse Memes</h2>
-    
     <!-- Loading state -->
     <el-skeleton v-if="loading" :rows="5" animated />
     
@@ -81,6 +87,7 @@ const formatDate = (dateString: string) => new Date(dateString).toLocaleDateStri
         :key="meme.id" 
         class="meme-card"
         shadow="hover"
+        @click="handleMemeClick(meme.id)"
       >
         <!-- Image section -->
         <div class="meme-image-container">
@@ -138,12 +145,6 @@ const formatDate = (dateString: string) => new Date(dateString).toLocaleDateStri
   margin: 0 auto;
 }
 
-.title {
-  margin-bottom: 30px;
-  text-align: center;
-  font-size: 1.8rem;
-}
-
 .meme-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -154,6 +155,7 @@ const formatDate = (dateString: string) => new Date(dateString).toLocaleDateStri
   transition: transform 0.2s;
   border-radius: 8px;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .meme-card:hover {
