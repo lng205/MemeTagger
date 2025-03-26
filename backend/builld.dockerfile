@@ -1,6 +1,17 @@
 # Build the jar file in docker
-FROM maven:3.9-eclipse-temurin-21 as build
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
+
+# Copy pom.xml
+COPY pom.xml .
+COPY server/pom.xml server/
+COPY common/pom.xml common/
+COPY pojo/pom.xml pojo/
+
+# Build all the dependencies
+RUN mvn dependency:go-offline
+
+# Copy the project source code
 COPY . .
 RUN mvn package -DskipTests
 
