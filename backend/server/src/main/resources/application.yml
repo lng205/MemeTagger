@@ -1,18 +1,19 @@
-google:
-  cloud:
-    project-id: "utility-ratio-448006-a2"
-    bucket-name: "memetagger"
-    credentials: "classpath:certs/googleCloud.json"
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   datasource:
-    username: root
-    password: root
-    url: jdbc:mysql://localhost:3306/meme
-    # url: jdbc:mysql://host.docker.internal:3306/meme
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${meme.datasource.username}
+    password: ${meme.datasource.password}
+    url: ${meme.datasource.url}
+    driver-class-name: ${meme.datasource.driver-class-name}
+cloud:
+  google:
+    project-id: ${meme.cloud.google.project-id}
+    bucket-name: ${meme.cloud.google.bucket-name}
+    credentials: ${meme.cloud.google.credentials}
 rsa:
-  private-key: classpath:certs/private.pem
-  public-key: classpath:certs/public.pem
+  private-key: ${meme.rsa.private-key}
+  public-key: ${meme.rsa.public-key}
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   configuration:

@@ -1,5 +1,5 @@
 target/
 .idea/
-application-dev.yml
-*.pem
-googleCloud.json
+
+certs/*
+!certs/script.ps1

@@ -21,9 +21,9 @@ public class GoogleCloudStorageUtils {
     private final Storage storage;
 
     public GoogleCloudStorageUtils(
-            @Value("${google.cloud.project-id}") String projectId,
-            @Value("${google.cloud.bucket-name}") String bucketName,
-            @Value("${google.cloud.credentials}") String credentialsPath,
+            @Value("${cloud.google.project-id}") String projectId,
+            @Value("${cloud.google.bucket-name}") String bucketName,
+            @Value("${cloud.google.credentials}") String credentialsPath,
             ResourceLoader resourceLoader) throws IOException {
         this.bucketName = bucketName;
 

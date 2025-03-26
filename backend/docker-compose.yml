@@ -1,12 +1,15 @@
 services:
   app:
-    image: lng205/meme-tagger:latest
+    image: lng205/memetagger:latest
     ports:
       - "8080:8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/meme
+      - SPRING_PROFILES_ACTIVE=prod
     depends_on:
       - db
+    volumes:
+      - ./certs:/etc/certs
 
   db:
     image: mysql:latest

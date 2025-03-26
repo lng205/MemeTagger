@@ -22,6 +22,18 @@ Frontend use [github actions](.github/workflows/deploy-frontend.yml) for CI/CD.
 
 The backend is a Java application that uses Spring Boot and Spring Security.
 
+### Credentials
+
+[certs](backend/certs) contains the credentials for the Google Cloud Storage bucket and the RSA private and public keys.
+
+To run the docker image, place the `googleCloud.json`, `private.pem`, and `public.pem` files in the `backend/certs` folder.
+
+- `googleCloud.json` is the service account key for the Google Cloud Storage bucket.
+- `private.pem` and `public.pem` are the RSA private and public keys for encryption and decryption.
+    - certs/script.ps1 is a script to generate the keys.
+
+To develop locally or build the docker image, set the absolute path to the certs in the `application-dev.yml` file.
+
 ### Deployment
 
 Backend use docker compose for deploy the java application and mysql database.

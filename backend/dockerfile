@@ -1,4 +1,4 @@
-# docker build -t lng205/meme-tagger:latest .
+# docker build . -t lng205/memetagger:latest
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY server/target/server.jar /app/app.jar
