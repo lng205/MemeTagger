@@ -64,7 +64,8 @@ export const memeService = {
     api.get('/meme', { params: { userId, page, pageSize } }),
   getMemeById: (id: number) => api.get(`/meme/${id}`),
   getPublicMemes: (page: number = 1, pageSize: number = 10) =>
-    api.get('/meme/public', { params: { page, pageSize } })
+    api.get('/meme/public', { params: { page, pageSize } }),
+  toggleLike: (memeId: number) => api.post(`/meme/vote/${memeId}`)
 };
 
 // Initialize OpenAI client

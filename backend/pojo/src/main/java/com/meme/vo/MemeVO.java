@@ -14,6 +14,8 @@ public class MemeVO {
     private String username;
     private LocalDateTime createdAt;
     private List<Tag> tags = new ArrayList<>();
+    private Integer likeCount;
+    private Boolean userLiked;
 
     public MemeVO() {}
 
@@ -27,6 +29,8 @@ public class MemeVO {
         this.url = meme.getUrl();
         this.userId = meme.getUserId();
         this.createdAt = meme.getCreatedAt();
+        this.likeCount = 0;
+        this.userLiked = false;
     }
 
     public Integer getId() {return id;}
@@ -46,4 +50,10 @@ public class MemeVO {
 
     public List<Tag> getTags() {return tags;}
     public void setTags(List<Tag> tags) {this.tags = tags;}
+    
+    public Integer getLikeCount() {return likeCount;}
+    public void setLikeCount(Integer likeCount) {this.likeCount = likeCount;}
+    
+    public Boolean getUserLiked() {return userLiked;}
+    public void setUserLiked(Boolean userLiked) {this.userLiked = userLiked;}
 }

@@ -17,6 +17,8 @@ interface Meme {
   userId: number;
   createdAt: string;
   tags: Tag[];
+  likeCount: number;
+  userLiked: boolean;
 }
 
 const memes = ref<Meme[]>([]);
@@ -83,6 +85,33 @@ const goToUserMemes = (userId: number, event: Event) => {
     query: { userId: userId.toString() }
   });
 };
+
+// Handle like button click
+const handleLike = async (memeId: number, event: Event) => {
+  event.stopPropagation(); // Prevent triggering the card click
+  
+  // Must be logged in to like a meme
+  if (!userStore.state.isAuthenticated) {
+    ElMessage.warning('Please log in to like memes');
+    return;
+  }
+  
+  try {
+    const response = await memeService.toggleLike(memeId);
+    if (response.data?.code === 1) {
+      // Update the meme in our current list
+      const meme = memes.value.find(m => m.id === memeId);
+      if (meme) {
+        const isLiked = response.data.data;
+        meme.userLiked = isLiked;
+        meme.likeCount = isLiked ? (meme.likeCount || 0) + 1 : Math.max(0, (meme.likeCount || 1) - 1);
+      }
+    }
+  } catch (error) {
+    console.error('Failed to toggle like:', error);
+    ElMessage.error('Failed to like meme');
+  }
+};
 </script>
 
 <template>
@@ -124,6 +153,19 @@ const goToUserMemes = (userId: number, event: Event) => {
               {{ meme.username }}
             </a>
             <span class="date">{{ formatDate(meme.createdAt) }}</span>
+          </div>
+          
+          <!-- Like section -->
+          <div class="like-section">
+            <el-button
+              :type="meme.userLiked ? 'danger' : 'default'"
+              :icon="meme.userLiked ? 'Star' : 'StarFilled'"
+              size="small"
+              circle
+              @click.stop="(event) => handleLike(meme.id, event)"
+              :title="meme.userLiked ? 'Unlike' : 'Like'"
+            />
+            <span class="like-count">{{ meme.likeCount || 0 }}</span>
           </div>
           
           <!-- Tags section with heading -->
@@ -220,6 +262,18 @@ const goToUserMemes = (userId: number, event: Event) => {
   justify-content: space-between;
   margin-bottom: 15px;
   font-size: 14px;
+}
+
+.like-section {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.like-count {
+  margin-left: 8px;
+  font-size: 14px;
+  color: #606266;
 }
 
 .username {

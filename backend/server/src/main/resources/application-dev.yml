@@ -12,3 +12,12 @@ meme:
   rsa:
     private-key: file:C:/Users/youbi/code/MemeTagger/backend/certs/private.pem
     public-key: file:C:/Users/youbi/code/MemeTagger/backend/certs/public.pem
+
+spring:
+  redis:
+    host: localhost
+    port: 6379
+    # Default database index
+    database: 0
+    # Connection timeout in milliseconds
+    timeout: 1000

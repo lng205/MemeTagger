@@ -28,3 +28,14 @@ CREATE TABLE `meme_tag` (
   `tag_id` INT NOT NULL,
   PRIMARY KEY (`meme_id`, `tag_id`)
 );
+
+DROP TABLE IF EXISTS `meme_vote`;
+CREATE TABLE `meme_vote` (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
+  `meme_id` INT NOT NULL,
+  `user_id` INT NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT `fk_meme_vote_meme` FOREIGN KEY (`meme_id`) REFERENCES `meme`(`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_meme_vote_user` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE,
+  CONSTRAINT `unique_meme_user_vote` UNIQUE (`meme_id`, `user_id`)
+);

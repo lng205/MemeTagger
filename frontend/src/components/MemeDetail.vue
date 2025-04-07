@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { memeService } from '../services/api';
 import { useRoute, useRouter } from 'vue-router';
+import userStore from '../store/user';
 
 interface Tag {
   id: number;
@@ -15,6 +16,8 @@ interface Meme {
   username: string;
   createdAt: string;
   tags: Tag[];
+  likeCount: number;
+  userLiked: boolean;
 }
 
 const route = useRoute();
@@ -32,6 +35,32 @@ const goBack = () => {
     router.push('/public');
   } else {
     router.push('/');
+  }
+};
+
+// Handle like button click
+const toggleLike = async () => {
+  if (!meme.value) return;
+  
+  // Must be logged in to like a meme
+  if (!userStore.state.isAuthenticated) {
+    ElMessage.warning('Please log in to like memes');
+    return;
+  }
+  
+  try {
+    const response = await memeService.toggleLike(meme.value.id);
+    if (response.data?.code === 1) {
+      // Update the meme's like status
+      const isLiked = response.data.data;
+      meme.value.userLiked = isLiked;
+      meme.value.likeCount = isLiked 
+        ? (meme.value.likeCount || 0) + 1 
+        : Math.max(0, (meme.value.likeCount || 1) - 1);
+    }
+  } catch (error) {
+    console.error('Failed to toggle like:', error);
+    ElMessage.error('Failed to like meme');
   }
 };
 
@@ -91,6 +120,19 @@ onMounted(async () => {
           <div class="meme-meta">
             <span class="username">Posted by {{ meme.username }}</span>
             <span class="date">on {{ formatDate(meme.createdAt) }}</span>
+          </div>
+          
+          <!-- Like section -->
+          <div class="like-section">
+            <el-button
+              :type="meme.userLiked ? 'danger' : 'default'"
+              :icon="meme.userLiked ? 'Star' : 'StarFilled'"
+              @click="toggleLike"
+              :title="meme.userLiked ? 'Unlike' : 'Like'"
+            >
+              {{ meme.userLiked ? 'Unlike' : 'Like' }}
+            </el-button>
+            <span class="like-count">{{ meme.likeCount || 0 }} likes</span>
           </div>
           
           <!-- Tags section -->
@@ -168,6 +210,18 @@ onMounted(async () => {
   justify-content: space-between;
   margin-bottom: 20px;
   font-size: 14px;
+}
+
+.like-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.like-count {
+  font-size: 14px;
+  color: #909399;
 }
 
 .username {
