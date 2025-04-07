@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import { Picture } from '@element-plus/icons-vue';
 import Auth from './components/Auth.vue';
 import MemeUploader from './components/MemeUploader.vue';
 import MemeBrowser from './components/MemeBrowser.vue';
@@ -13,6 +14,7 @@ import userStore from './store/user';
 const activeTab = ref('upload');
 const memeBrowserRef = ref();
 const route = useRoute();
+const router = useRouter();
 
 // Initialize app
 onMounted(async () => {
@@ -38,6 +40,11 @@ onMounted(async () => {
 const handleLoginSuccess = async () => {
   await userStore.actions.fetchCurrentUser();
 };
+
+// Navigate to public memes page
+const goToPublicMemes = () => {
+  router.push('/public');
+};
 </script>
 
 <template>
@@ -50,7 +57,14 @@ const handleLoginSuccess = async () => {
           <p>Upload and share your favorite memes</p>
         </div>
         <div class="nav-section">
+          <el-button type="primary" link class="public-link" @click="goToPublicMemes">
+            <el-icon><Picture /></el-icon>
+            Public Gallery
+          </el-button>
           <UserAccount v-if="userStore.state.isAuthenticated" @logout="userStore.actions.setAuthenticated(false)" />
+          <el-button v-else type="primary" @click="router.push('/')" class="login-button">
+            Login / Register
+          </el-button>
           <ApiKeySettings />
         </div>
       </div>
@@ -58,9 +72,13 @@ const handleLoginSuccess = async () => {
     
     <!-- Main content -->
     <el-main>
-      <Auth v-if="!userStore.state.isAuthenticated" @login-success="handleLoginSuccess" />
+      <!-- Unauthenticated -->
+      <template v-if="!userStore.state.isAuthenticated && route.name !== 'public-memes'">
+        <Auth @login-success="handleLoginSuccess" />
+      </template>
       
-      <template v-if="userStore.state.isAuthenticated">
+      <!-- Show public memes or user content -->
+      <template v-else>
         <el-tabs v-if="route.name === 'home'" v-model="activeTab" type="card" class="main-tabs">
           <el-tab-pane label="Upload" name="upload">
             <MemeUploader @refetch="memeBrowserRef?.loadMemes()" class="content"/>
@@ -110,6 +128,24 @@ body {
 .header h1 { margin: 0; font-size: 2em; }
 .header p { margin: 10px 0 0; opacity: 0.8; }
 .nav-section { display: flex; align-items: center; gap: 16px; }
+
+/* Public gallery link */
+.public-link {
+  color: white !important;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.public-link:hover {
+  opacity: 0.8;
+}
+
+/* Login button */
+.login-button {
+  font-weight: bold;
+}
 
 /* Content styles */
 .main-tabs { max-width: 1200px; margin: 0 auto; }

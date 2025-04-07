@@ -47,7 +47,9 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/user/login",
-                                "/user/register"
+                                "/user/register",
+                                "/meme/public",
+                                "/meme/{id}"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

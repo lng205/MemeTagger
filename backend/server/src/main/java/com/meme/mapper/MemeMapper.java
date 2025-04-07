@@ -20,4 +20,7 @@ public interface MemeMapper {
 
     @Select("SELECT meme.id FROM meme WHERE user_id = #{userId} ORDER BY meme.id DESC")
     Page<Integer> getMemeIdsOnPageByUser(int userId);
+    
+    @Select("SELECT meme.id FROM meme ORDER BY meme.id DESC")
+    Page<Integer> getAllMemeIdsOnPage();
 }

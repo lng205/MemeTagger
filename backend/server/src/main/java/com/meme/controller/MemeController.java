@@ -1,6 +1,7 @@
 package com.meme.controller;
 
 import com.meme.dto.MemePageQueryDTO;
+import com.meme.dto.PublicMemePageQueryDTO;
 import com.meme.result.PageResult;
 import com.meme.result.Result;
 import com.meme.service.MemeService;
@@ -25,6 +26,12 @@ public class MemeController {
     @GetMapping
     public Result<PageResult<MemeVO>> getUserMemePage(MemePageQueryDTO memePageQueryDTO) {
         PageResult<MemeVO> memes = memeService.getMemePageByUser(memePageQueryDTO);
+        return Result.success(memes);
+    }
+    
+    @GetMapping("/public")
+    public Result<PageResult<MemeVO>> getPublicMemePage(PublicMemePageQueryDTO queryDTO) {
+        PageResult<MemeVO> memes = memeService.getAllMemesPage(queryDTO);
         return Result.success(memes);
     }
 }

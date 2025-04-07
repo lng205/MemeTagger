@@ -62,7 +62,9 @@ export const tagService = {
 export const memeService = {
   getMemesByUser: (userId: number, page: number = 1, pageSize: number = 10) => 
     api.get('/meme', { params: { userId, page, pageSize } }),
-  getMemeById: (id: number) => api.get(`/meme/${id}`)
+  getMemeById: (id: number) => api.get(`/meme/${id}`),
+  getPublicMemes: (page: number = 1, pageSize: number = 10) =>
+    api.get('/meme/public', { params: { page, pageSize } })
 };
 
 // Initialize OpenAI client
@@ -104,4 +106,4 @@ export const openaiService = {
   }
 };
 
-export default api; 
+export default api;

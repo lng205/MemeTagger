@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, defineExpose } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { memeService } from '../services/api';
-import userStore from '../store/user';
 import { useRouter } from 'vue-router';
+import userStore from '../store/user';
 
 interface Tag {
   id: number;
@@ -14,6 +14,7 @@ interface Meme {
   id: number;
   url: string;
   username: string;
+  userId: number;
   createdAt: string;
   tags: Tag[];
 }
@@ -21,13 +22,13 @@ interface Meme {
 const memes = ref<Meme[]>([]);
 const loading = ref(true);
 const currentPage = ref(1);
-const pageSize = ref(6);
+const pageSize = ref(12); // Show more memes per page for public browsing
 const total = ref(0);
 
 const router = useRouter();
 
-// Get current user ID from store
-const userId = computed(() => userStore.state.id || 0);
+// Check if user is authenticated
+const currentUserId = computed(() => userStore.state.id || 0);
 
 // Get sorted memes (newest first)
 const sortedMemes = computed(() => {
@@ -35,17 +36,17 @@ const sortedMemes = computed(() => {
 });
 
 // Load memes on component mount
-onMounted(() => loadMemes());
+onMounted(() => loadPublicMemes());
 
-// Fetch memes with pagination
-async function loadMemes() {
+// Fetch public memes with pagination
+async function loadPublicMemes() {
   loading.value = true;
   
   try {
-    const response = await memeService.getMemesByUser(userId.value, currentPage.value, pageSize.value);
+    const response = await memeService.getPublicMemes(currentPage.value, pageSize.value);
     
     if (response.data?.code === 1) {
-      // Update with new API response format
+      // Update with API response format
       const responseData = response.data.data;
       memes.value = responseData.records || [];
       total.value = responseData.total || 0;
@@ -60,9 +61,6 @@ async function loadMemes() {
   }
 }
 
-// Expose loadMemes method to parent components
-defineExpose({ loadMemes });
-
 // Format date from ISO string
 const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString();
 
@@ -70,13 +68,30 @@ const formatDate = (dateString: string) => new Date(dateString).toLocaleDateStri
 const handleMemeClick = (memeId: number) => {
   router.push({
     path: `/meme/${memeId}`,
-    query: { from: 'home' }
+    query: { from: 'public' }
+  });
+};
+
+// Navigate to user's meme collection
+const goToUserMemes = (userId: number, event: Event) => {
+  event.stopPropagation(); // Prevent triggering the card click
+  event.preventDefault();
+  
+  // Navigate to home with a userId query parameter
+  router.push({
+    path: '/',
+    query: { userId: userId.toString() }
   });
 };
 </script>
 
 <template>
-  <div class="meme-browser">
+  <div class="public-meme-browser">
+    <div class="page-header">
+      <h1>Public Meme Gallery</h1>
+      <p class="subtitle">Browse memes uploaded by the community</p>
+    </div>
+    
     <!-- Loading state -->
     <el-skeleton v-if="loading" :rows="5" animated />
     
@@ -100,7 +115,14 @@ const handleMemeClick = (memeId: number) => {
         <!-- Info section -->
         <div class="meme-info">
           <div class="meme-meta">
-            <span class="username">{{ meme.username }}</span>
+            <a 
+              href="#" 
+              class="username" 
+              @click.stop="(event) => goToUserMemes(meme.userId, event)"
+              :title="`View all memes by ${meme.username}`"
+            >
+              {{ meme.username }}
+            </a>
             <span class="date">{{ formatDate(meme.createdAt) }}</span>
           </div>
           
@@ -135,23 +157,40 @@ const handleMemeClick = (memeId: number) => {
         :page-size="pageSize"
         layout="prev, pager, next"
         :total="total"
-        @current-change="loadMemes"
+        @current-change="loadPublicMemes"
       />
     </div>
   </div>
 </template>
 
 <style scoped>
-.meme-browser {
+.public-meme-browser {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
+.page-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: var(--el-color-primary);
+}
+
+.subtitle {
+  color: #606266;
+  font-size: 16px;
+}
+
+/* Meme grid layout */
 .meme-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
 }
 
 .meme-card {
@@ -167,7 +206,7 @@ const handleMemeClick = (memeId: number) => {
 }
 
 .meme-image-container {
-  height: 250px;
+  height: 220px;
   overflow: hidden;
   border-bottom: 1px solid var(--el-border-color-lighter);
 }
@@ -186,6 +225,12 @@ const handleMemeClick = (memeId: number) => {
 .username {
   font-weight: bold;
   color: var(--el-color-primary);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.username:hover {
+  text-decoration: underline;
 }
 
 .date {
@@ -209,20 +254,18 @@ const handleMemeClick = (memeId: number) => {
 }
 
 .tag {
-  margin: 0;
-  font-size: 0.9rem;
+  margin-right: 0;
 }
 
 .no-tags {
-  margin-top: 10px;
   color: #909399;
-  font-style: italic;
   font-size: 14px;
+  margin-top: 10px;
 }
 
 .pagination-container {
-  margin-top: 40px;
+  margin-top: 30px;
   display: flex;
   justify-content: center;
 }
-</style> 
+</style>

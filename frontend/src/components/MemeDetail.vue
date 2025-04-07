@@ -21,16 +21,24 @@ const route = useRoute();
 const router = useRouter();
 const meme = ref<Meme | null>(null);
 const loading = ref(true);
+const fromPublic = ref(false);
 
 // Format date from ISO string
 const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString();
 
 // Handle back navigation
 const goBack = () => {
-  router.push('/');
+  if (fromPublic.value) {
+    router.push('/public');
+  } else {
+    router.push('/');
+  }
 };
 
 onMounted(async () => {
+  // Check where we came from
+  fromPublic.value = route.query.from === 'public';
+  
   const memeId = Number(route.params.id);
   if (!memeId) {
     ElMessage.error('Invalid meme ID');
@@ -60,7 +68,7 @@ onMounted(async () => {
     <div class="back-button">
       <el-button @click="goBack" plain>
         <el-icon><ArrowLeft /></el-icon>
-        Back to Browse
+        Back to {{ fromPublic ? 'Public Gallery' : 'Browse' }}
       </el-button>
     </div>
     
@@ -198,4 +206,4 @@ onMounted(async () => {
   font-style: italic;
   font-size: 14px;
 }
-</style> 
+</style>
