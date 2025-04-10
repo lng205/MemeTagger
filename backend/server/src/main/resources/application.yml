@@ -1,20 +1,17 @@
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
-  datasource:
-    username: ${meme.datasource.username}
-    password: ${meme.datasource.password}
-    url: ${meme.datasource.url}
-    driver-class-name: ${meme.datasource.driver-class-name}
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
 cloud:
   google:
     project-id: ${meme.cloud.google.project-id}
     bucket-name: ${meme.cloud.google.bucket-name}
     credentials: ${meme.cloud.google.credentials}
+
 rsa:
   private-key: ${meme.rsa.private-key}
   public-key: ${meme.rsa.public-key}
-mybatis:
-  mapper-locations: classpath:mapper/*.xml
-  configuration:
-    map-underscore-to-camel-case: true

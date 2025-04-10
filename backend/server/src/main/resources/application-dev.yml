@@ -1,23 +1,21 @@
-meme:
+spring:
   datasource:
     username: root
     password: root
     url: jdbc:mysql://localhost:3306/meme
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  redis:
+    host: localhost
+    port: 6379
+
+meme:
   cloud:
     google:
       project-id: "utility-ratio-448006-a2"
       bucket-name: "memetagger"
       credentials: file:C:/Users/youbi/code/MemeTagger/backend/certs/googleCloud.json
+
   rsa:
     private-key: file:C:/Users/youbi/code/MemeTagger/backend/certs/private.pem
     public-key: file:C:/Users/youbi/code/MemeTagger/backend/certs/public.pem
-
-spring:
-  redis:
-    host: localhost
-    port: 6379
-    # Default database index
-    database: 0
-    # Connection timeout in milliseconds
-    timeout: 1000
